@@ -3,6 +3,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+
 
 typedef struct {
     char *inputFilename;
@@ -160,8 +164,8 @@ CmdChain parseCmds(char *buf) {
     }
     cc.cmds = cmd_info_list;
 
-    cc.inputStream  = tentative_cmd_info_list[0].inputFilename;
-    cc.outputStream = tentative_cmd_info_list[n-1].outputFilename;
+    cc.inputStream  = open(tentative_cmd_info_list[0].inputFilename, 0);
+    cc.outputStream = open(tentative_cmd_info_list[n-1].outputFilename, 0);
 
     return cc;
 }

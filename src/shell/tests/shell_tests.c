@@ -74,6 +74,7 @@ void testCmdParsing5(){
     printf("\n\n");
     CmdChain cc = parseCmds("grep <halp.txt | blah sorgs meh | plz > whoo.txt");
 
+#if 0
     printf("INPUT: %s\n", cc.inputStream);
     printf("OUTPUT: %s\n", cc.outputStream);
     printf("nCmds: %d\n", cc.nCmds);
@@ -84,6 +85,7 @@ void testCmdParsing5(){
         }
         printf("\n");
     }
+#endif
 }
 
 
