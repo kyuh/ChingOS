@@ -7,6 +7,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
+#include <unistd.h>
 
 typedef struct {
     char *inputFilename;
@@ -164,8 +165,18 @@ CmdChain parseCmds(char *buf) {
     }
     cc.cmds = cmd_info_list;
 
-    cc.inputStream  = open(tentative_cmd_info_list[0].inputFilename, 0);
-    cc.outputStream = open(tentative_cmd_info_list[n-1].outputFilename, 0);
+    char *inputFilename = tentative_cmd_info_list[0].inputFilename;
+    char *outputFilename = tentative_cmd_info_list[n-1].outputFilename;
+
+    if (inputFilename)
+        cc.inputStream = open(inputFilename, O_RDONLY);
+    else
+        cc.inputStream = STDIN_FILENO;
+
+    if (outputFilename)
+        cc.outputStream = open(outputFilename, O_WRONLY);
+    else
+        cc.outputStream = STDOUT_FILENO;
 
     return cc;
 }
