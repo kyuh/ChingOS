@@ -1,4 +1,4 @@
-BINARIES = outerr sleepycat cattysleep
+BINARIES = outerr sleepycat cattysleep shell_tests
 
 CFLAGS = -Wall
 
@@ -13,6 +13,9 @@ sleepycat: sleepycat.o
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
 cattysleep: cattysleep.o
+	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
+
+shell_tests: shell_tests.o
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
 
