@@ -7,6 +7,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <errno.h>
+
 
 #define PATH_MAX 4096
 #define CMD_MAX 1024
@@ -66,8 +68,16 @@ int main(void)
 			// If the command does not fall into any of the above cases, give the
 			// command to our parser.
 			CmdChain chain = parseCmds(command);
-			// Handle piping and other things.
-			startChildren(chain);
+
+            //check for valid input and output streams
+            if(chain.inputStream != -1 && chain.outputStream != -1) {
+			    // Handle piping and other things.
+			    startChildren(chain);
+            } else {
+                //this is probably just because the user typed a file that does not exist
+                //the program should still continue
+                printf("Failed to open input or output stream: %s\n", strerror(errno));
+            }
 		}		
 	}
 	return 0;
