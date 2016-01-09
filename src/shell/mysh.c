@@ -1,5 +1,6 @@
 // The main loop for the command shell.
 
+#include "shell_utils.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
