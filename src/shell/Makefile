@@ -1,6 +1,6 @@
-CFLAGS = -Wall -g
+CFLAGS = -Wall -g -std=c11
 
-OBJS = mysh.o
+OBJS = mysh.o shell_utils.o child_process.o string_utils.o
 
 all: mysh
 
