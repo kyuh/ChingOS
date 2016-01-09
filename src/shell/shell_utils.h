@@ -15,8 +15,8 @@ typedef struct {
 
 typedef struct {
     // FILEs are NULL if stdin or stdout (respectively) should be used
-    int inputStream;
-    int outputStream;
+    char *inputStream;
+    char *outputStream;
     CmdInfo *cmds;
     int nCmds;
 } CmdChain;

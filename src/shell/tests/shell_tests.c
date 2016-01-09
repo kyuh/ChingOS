@@ -62,10 +62,28 @@ void testCmdParsing4(){
     printf("ARGC: %d\n", tci.argc);
     printf("%s\n", tci.inputFilename);
 
+    printf("ARGV:\n");
     for (int i = 0; i < tci.argc; i++){
         printf("%s\n", tci.argv[i]);
     }
 
+}
+
+
+void testCmdParsing5(){
+    printf("\n\n");
+    CmdChain cc = parseCmds("grep <halp.txt | blah sorgs meh | plz > whoo.txt");
+
+    printf("INPUT: %s\n", cc.inputStream);
+    printf("OUTPUT: %s\n", cc.outputStream);
+    printf("nCmds: %d\n", cc.nCmds);
+
+    for (int i = 0; i < cc.nCmds; i++){
+        for (int j = 0; j < cc.cmds[i].argc; j++){
+            printf("%s\n", cc.cmds[i].argv[j]);
+        }
+        printf("\n");
+    }
 }
 
 
@@ -76,6 +94,7 @@ int main() {
     testCmdParsing2a();
     testCmdParsing3();
     testCmdParsing4();
+    testCmdParsing5();
     printf("Success\n");
     return 0;
 }

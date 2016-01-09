@@ -51,6 +51,7 @@ StringArray sepStringWithQuotes(char *buf, char separator){
         cur_pos++;
     }
 
+    // Filter out any empty tokens
     StringArray stArr_filtered = createStringArray(10);
     for (int i = 0; i < stArr.size; i++){
         char *s = stringArrayGet(&stArr, i);
@@ -59,8 +60,8 @@ StringArray sepStringWithQuotes(char *buf, char separator){
         }
     }
 
-    printf("STARR SIZE: %d\n", stArr.size);
-    printf("STARR FILTERED SIZE: %d\n", stArr_filtered.size);
+    //printf("STARR SIZE: %d\n", stArr.size);
+    //printf("STARR FILTERED SIZE: %d\n", stArr_filtered.size);
 
     return stArr_filtered;
 }
@@ -123,8 +124,6 @@ TentativeCmdInfo parseSingleCmd(char *cmd_blob){
 }
 
 
-
-#if 0
 CmdChain parseCmds(char *buf) {
     StringArray cmd_string_blobs = sepStringWithQuotes(buf, '|');
     int n = cmd_string_blobs.size;
@@ -136,7 +135,7 @@ CmdChain parseCmds(char *buf) {
 
     // Only first cmd should (optionally) have an input redirect
     for (int i = 0; i < n-1; i++){
-        if (tentative_cmd_info_list[i].outputFile){
+        if (tentative_cmd_info_list[i].outputFilename){
             fprintf(stderr, "Invalid output redirect\n");
             exit(-1);
         }
@@ -144,7 +143,7 @@ CmdChain parseCmds(char *buf) {
 
     // Only last cmd should (optionally) have an output redirect
     for (int i = 1; i < n; i++){
-        if (tentative_cmd_info_list[i].inputFile){
+        if (tentative_cmd_info_list[i].inputFilename){
             fprintf(stderr, "Invalid input redirect\n");
             exit(-1);
         }
@@ -152,18 +151,17 @@ CmdChain parseCmds(char *buf) {
 
     // Assemble full info
     CmdChain cc;
-    cc->nCmds = n;
+    cc.nCmds = n;
 
     CmdInfo *cmd_info_list = safeMalloc(n * sizeof(CmdInfo));
     for (int i = 0; i < n; i++){
         cmd_info_list[i].argv = tentative_cmd_info_list[i].argv;
         cmd_info_list[i].argc = tentative_cmd_info_list[i].argc;
     }
-    cc->cmds = cmd_info_list;
+    cc.cmds = cmd_info_list;
 
-    cc->inputStream  = tentative_cmd_info_list[0].inputFile;
-    cc->outputStream = tentative_cmd_info_list[n-1].outputFile;
+    cc.inputStream  = tentative_cmd_info_list[0].inputFilename;
+    cc.outputStream = tentative_cmd_info_list[n-1].outputFilename;
 
     return cc;
 }
-#endif
