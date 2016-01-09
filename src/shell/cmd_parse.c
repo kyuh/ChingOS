@@ -1,16 +1,18 @@
 #include "cmd_parse.h"
 #include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 
 
 typedef struct {
-    FILE *inputFile;
-    FILE *outputFile;
+    char *inputFilename;
+    char *outputFilename;
     char **argv;
     int argc;
 } TentativeCmdInfo;
 
 
-StringArray sepStringWithQuotes(char *buf, char separator){
+StringArray sepStringWithQuotes(char *buf, char separator, bool allowDup){
     StringArray stArr = createStringArray(10);
 
     bool quote_entered = false;
@@ -46,8 +48,8 @@ StringArray sepStringWithQuotes(char *buf, char separator){
             // Quick check to make sure that there aren't two pipes in a row
             // (More in-depth checking tbd elsewhere, but having
             // this will mess up the parser now)
-            if (*(cur_pos + 1) == separator){
-                fprintf(stderr, "Cannot have two pipes in a row\n");
+            if (*(cur_pos + 1) == separator && !allowDup){
+                fprintf(stderr, "Invalid duplicate of character\n");
                 exit(-1);
             }
 
@@ -59,11 +61,67 @@ StringArray sepStringWithQuotes(char *buf, char separator){
 }
 
 
+TentativeCmdInfo parseSingleCmd(char *cmd_blob){
+    StringArray sa_prelim_argv = sepStringWithQuotes(cmd_blob, ' ', true);
+
+    TentativeCmdInfo tci;
+    tci.inputFilename = NULL;
+    tci.outputFilename = NULL;
+
+    StringArray sa_argv = createStringArray(10);
+
+    int i = 0;
+    while (i < sa_prelim_argv.size){
+        char *cur_str = stringArrayGet(&sa_prelim_argv, i);
+
+        if (cur_str[0] == '<'){
+
+            // If this is the only character in the token,
+            // then the next string is the item to be redirected
+            if (cur_str[1] == '\0'){
+                if (i == sa_prelim_argv.size - 1){
+                    fprintf(stderr, "Reached end of line while parsing\n");
+                    exit(-1);
+                }
+
+                tci.inputFilename = strdup(stringArrayGet(&sa_prelim_argv, i+1));
+                i += 2;
+            } else {
+                tci.inputFilename = strdup(cur_str + 1);    //lop off the <
+                i += 1;
+            }
+
+        } else if (cur_str[0] == '>'){
+            if (cur_str[1] == '\0'){
+                if (i == sa_prelim_argv.size - 1){
+                    fprintf(stderr, "Reached end of line while parsing\n");
+                    exit(-1);
+                }
+
+                tci.outputFilename = strdup(stringArrayGet(&sa_prelim_argv, i+1));
+                i += 2;
+            } else {
+                tci.outputFilename = strdup(cur_str + 1);    //lop off the <
+                i += 1;
+            }
+
+        } else {
+            stringArrayInsert(&sa_argv, cur_str);
+            i += 1;
+        }
+    }
+
+    tci.argv = stringArrayToNormalPlusNull(&sa_argv);
+    tci.argc = sa_argv.size;
+
+    return tci;
+}
+
 
 
 #if 0
 CmdChain parseCmds(char *buf) {
-    StringArray cmd_string_blobs = sepCmdsByPipe(buf);
+    StringArray cmd_string_blobs = sepStringWithQuotes(buf, '|', false);
     int n = cmd_string_blobs.size;
 
     TentativeCmdInfo *tentative_cmd_info_list = safeMalloc(n * sizeof(TentativeCmdInfo));
@@ -103,5 +161,4 @@ CmdChain parseCmds(char *buf) {
 
     return cc;
 }
-
 #endif
