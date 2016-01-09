@@ -49,4 +49,14 @@ ST_ARR_TYPE stringArrayGet(StringArray *stArr, size_t idx){
     return stArr->data[idx];
 }
 
+char **stringArrayToNormalPlusNull(StringArray *stArr){
+    int n = stArr->size;
+    char **arr = malloc((n+1) * sizeof(char*));
+    for (int i = 0; i < n; i++){
+        arr[i] = stringArrayGet(stArr, i);
+    }
+    arr[n] = NULL;
+    return arr;
+}
+
 #endif // ARRAY_UTILS_H
