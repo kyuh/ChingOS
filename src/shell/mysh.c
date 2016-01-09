@@ -62,14 +62,14 @@ int main(void)
 		else if (strncmp(strncpy(buf2, command, 4), "exit", 4) == 0) {
 			exit(0);
 		}
-
-		// If the command does not fall into any of the above cases, give the
-		// command to our parser.
-		CmdChain chain = parseCmds(command);
-		// Handle piping and other things.
-		startChildren(chain);
+		else {
+			// If the command does not fall into any of the above cases, give the
+			// command to our parser.
+			CmdChain chain = parseCmds(command);
+			// Handle piping and other things.
+			startChildren(chain);
+		}		
 	}
-
 	return 0;
 }
 
