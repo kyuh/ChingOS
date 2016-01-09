@@ -1,6 +1,9 @@
 /* Utils for custom shell.
  */
 
+#ifndef SHELL_UTILS_H
+#define SHELL_UTILS_H
+
 #include <stdio.h>
 #include <stdlib.h>
 #include "array_utils.h"
@@ -26,3 +29,5 @@ void* safeMalloc(size_t nBytes) {
     }
     return ptr;
 }
+
+#endif // SHELL_UTILS_H

@@ -12,6 +12,11 @@ bool testStrArray(){
     stringArrayInsert(&stArr, "3");
     stringArrayInsert(&stArr, "44");
     stringArrayInsert(&stArr, "555");
+
+    for (int i = 0; i < 5; i++){
+        printf("%s\n", stringArrayGet(&stArr, i));
+    }
+
     return (stArr.size == 5 && stArr.capacity == 8);
 }
 

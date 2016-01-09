@@ -1,6 +1,6 @@
 BINARIES = outerr sleepycat cattysleep shell_tests array_tests
 
-CFLAGS = -Wall
+CFLAGS = -Wall -std=c99
 
 
 all: $(BINARIES)
