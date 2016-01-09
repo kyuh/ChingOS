@@ -36,7 +36,7 @@ typedef struct {
 void forkChild(char **argv, const Pipe inputStream, const Pipe outputStream) {
     pid_t pid = fork();
     //run the command if we're the child process
-    if(pid > 0) {
+    if(pid == 0) {
         //set input and output of the process
 
         //only set the streams if we're reading or writing from a pipe
