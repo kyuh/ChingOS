@@ -40,7 +40,7 @@ void forkChild(char **argv, const Pipe inputStream, const Pipe outputStream) {
         //set input and output of the process
 
         //only set the streams if we're reading or writing from a pipe
-        if(inputStream.input != 0) {
+        if(inputStream.output != 0) {
             close(inputStream.input);
             
             //duplicate the descriptor in
@@ -49,7 +49,7 @@ void forkChild(char **argv, const Pipe inputStream, const Pipe outputStream) {
             //now close the thing we copied from 
             close(inputStream.output);
         }
-        if(outputStream.output != 1)
+        if(outputStream.input != 1)
         {
             close(outputStream.output);
 
@@ -102,9 +102,11 @@ void startChildren(CmdChain commands) {
     Pipe previous;
     Pipe next;
     
-    //set the input stream to stdin
-    previous.input = 0;
-    previous.output = 0;
+    //set the input stream to specified fd
+    //this is a dummy value, since this fd only has one end we are
+    //aware of
+    previous.input = -1;
+    previous.output = commands.inputStream;
 
 
     //now start each child
@@ -112,10 +114,8 @@ void startChildren(CmdChain commands) {
         //allocate the pipe for output, or if this is the last stream
         //handle redirection
         if(i == commands.nCmds - 1) {
-            //TODO
-            //placeholder stuff
-            next.input = 1;
-            next.output = 1;
+            next.input = commands.outputStream;
+            next.output = -1;
         } else {
             //allocate a new next stream
             pipe((int*)(&next));
@@ -127,7 +127,7 @@ void startChildren(CmdChain commands) {
         //we must also close the streams as the parent
         //and advance to the next stream
         //don't close out own stdin stream
-        if(previous.input != 0) {
+        if(previous.output != 0) {
             close(previous.input);
             close(previous.output);
         }
