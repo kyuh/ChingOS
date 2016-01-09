@@ -10,7 +10,7 @@ typedef struct {
 } TentativeCmdInfo;
 
 
-StringArray sepCmdsByPipe(char *buf){
+StringArray sepStringWithQuotes(char *buf, char separator){
     StringArray stArr = createStringArray(10);
 
     bool quote_entered = false;
@@ -20,7 +20,7 @@ StringArray sepCmdsByPipe(char *buf){
     while (true){
         if (*cur_pos == '\"'){
             quote_entered = !quote_entered;
-        } else if ((*cur_pos == '|' && !quote_entered) || *cur_pos == '\0') {
+        } else if ((*cur_pos == separator && !quote_entered) || *cur_pos == '\0') {
 
             int token_nChars = cur_pos - last_token_pos;
             // Account for null character
@@ -46,7 +46,7 @@ StringArray sepCmdsByPipe(char *buf){
             // Quick check to make sure that there aren't two pipes in a row
             // (More in-depth checking tbd elsewhere, but having
             // this will mess up the parser now)
-            if (*(cur_pos + 1) == '|'){
+            if (*(cur_pos + 1) == separator){
                 fprintf(stderr, "Cannot have two pipes in a row\n");
                 exit(-1);
             }
@@ -57,6 +57,7 @@ StringArray sepCmdsByPipe(char *buf){
         cur_pos++;
     }
 }
+
 
 
 

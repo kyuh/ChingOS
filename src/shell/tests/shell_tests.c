@@ -14,7 +14,7 @@ bool testSafeMalloc1() {
 }
 
 void testPipeParsing1(){
-    StringArray stArr = sepCmdsByPipe("grep | blah | plz");
+    StringArray stArr = sepStringWithQuotes("grep | blah | plz", '|');
     printf("SIZE: %d\n", stArr.size);
     for (int i = 0; i < stArr.size; i++){
         printf("%s\n", stringArrayGet(&stArr, i));
@@ -22,7 +22,7 @@ void testPipeParsing1(){
 }
 
 void testPipeParsing2(){
-    StringArray stArr = sepCmdsByPipe("grep | blah \" whoo | whee \" plz");
+    StringArray stArr = sepStringWithQuotes("grep | blah \" whoo | whee \" plz", '|');
     printf("SIZE: %d\n", stArr.size);
     for (int i = 0; i < stArr.size; i++){
         printf("%s\n", stringArrayGet(&stArr, i));
