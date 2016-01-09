@@ -1,6 +1,6 @@
 CFLAGS = -Wall -g -std=c99
 
-OBJS = mysh.o
+OBJS = mysh.o array_utils.o child_process.o shell_utils.o
 
 all: mysh
 

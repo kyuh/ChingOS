@@ -21,13 +21,6 @@ typedef struct {
     int nCmds;
 } CmdChain;
 
-void* safeMalloc(size_t nBytes) {
-    void *ptr = malloc(nBytes);
-    if (!ptr){
-        fprintf(stderr, "Memory allocation error, aborting\n");
-        exit(-1);
-    }
-    return ptr;
-}
+void* safeMalloc(size_t nBytes);
 
 #endif // SHELL_UTILS_H
