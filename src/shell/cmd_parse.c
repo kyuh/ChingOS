@@ -42,7 +42,7 @@ StringArray sepStringWithQuotes(char *buf, char separator){
                     exit(-1);
                 }
 
-                return stArr;
+                break;
             }
 
             // Mark the start of new command
@@ -50,6 +50,19 @@ StringArray sepStringWithQuotes(char *buf, char separator){
         }
         cur_pos++;
     }
+
+    StringArray stArr_filtered = createStringArray(10);
+    for (int i = 0; i < stArr.size; i++){
+        char *s = stringArrayGet(&stArr, i);
+        if (s[0]){
+            stringArrayInsert(&stArr_filtered, s);
+        }
+    }
+
+    printf("STARR SIZE: %d\n", stArr.size);
+    printf("STARR FILTERED SIZE: %d\n", stArr_filtered.size);
+
+    return stArr_filtered;
 }
 
 
