@@ -98,37 +98,51 @@ void closeStreams(Pipe *pipes, int count) {
  * 
  */
 void startChildren(CmdChain commands) {
-    //allocate pipes
-    //pipes between each command, plus an input and output
-    Pipe * pipes = (Pipe *)safeMalloc(sizeof(Pipe) * (commands.nCmds + 1));
-    
-    for(int i = 0; i < commands.nCmds + 1; i++) {
-        //try allocating the pipe
-        if(pipe((int*)(pipes + i)))
-        {
-            //if the pipe failed to allocate, we're in a bad place
-            //it's probably not safe to continue running the shell at all
-            //so we'll just exit the shell and give up
-            fprintf(stderr, "Failed to create pipe, shell will quit now: %s\n", strerror(errno));
-        }
-    }
+    //previous and next pipes
+    Pipe previous;
+    Pipe next;
     
     //set the input stream to stdin
-    pipes[0].input = 0;
-    pipes[0].output = 0;
-    
-    //set the output stream to stdout
-    pipes[commands.nCmds].input = 1;
-    pipes[commands.nCmds].output = 1;
+    previous.input = 0;
+    previous.output = 0;
 
 
     //now start each child
     for(int i = 0; i < commands.nCmds; i++) {
-        forkChild(commands.cmds[i].argv, pipes[i], pipes[i + 1]);
+        //allocate the pipe for output, or if this is the last stream
+        //handle redirection
+        if(i == commands.nCmds - 1) {
+            //TODO
+            //placeholder stuff
+            next.input = 1;
+            next.output = 1;
+        } else {
+            //allocate a new next stream
+            pipe((int*)(&next));
+        }
+
+        //the forked child will close the streams itself
+        forkChild(commands.cmds[i].argv, previous, next);
+
+        //we must also close the streams as the parent
+        //and advance to the next stream
+        //don't close out own stdin stream
+        if(previous.input != 0) {
+            close(previous.input);
+            close(previous.output);
+        }
+
+        previous = next;
     }
 
-    //now clean up the streams, since the shell no longer needs any FDs of the pipes
-    closeStreams(pipes, commands.nCmds + 1);
+    //clean up the final pipe
+    //don't close our own stdout stream
+    if(previous.input != 1)
+    {
+        close(previous.input);
+        close(previous.output);
+    }
+
 
     //now wait for the children to finish running
     //for our simple shell, we can just wait on all children
