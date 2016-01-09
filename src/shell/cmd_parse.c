@@ -1,3 +1,6 @@
+#define _BSD_SOURCE
+
+
 #include "cmd_parse.h"
 #include <stdbool.h>
 #include <stdlib.h>

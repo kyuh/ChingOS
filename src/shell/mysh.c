@@ -1,5 +1,7 @@
 // The main loop for the command shell.
 
+#define _POSIX_C_SOURCE 199506L
+
 #include "shell_utils.h"
 #include "cmd_parse.h"
 #include "child_process.h"

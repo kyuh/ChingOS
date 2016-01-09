@@ -76,19 +76,17 @@ void forkChild(char **argv, const Pipe inputStream, const Pipe outputStream) {
     }
 }
 
-/*
- * Closes all of the pipes passed in.
- * each element of the pipes array should be 
- * count is the number of pipes, not FDs
- */
-void closeStreams(Pipe *pipes, int count) {
-    for(int i = 0; i < count; i++) {
-        //only close if they're pipes, not our own stdio fds
-        if(pipes[i].input >= 2) close(pipes[i].input);
-        if(pipes[i].output >= 2) close(pipes[i].output);
+//create a pipe; abort the program if this operation fails
+void safePipe(int* fds)
+{
+    int success = pipe(fds);
+    if(success == -1) {
+        //we cannot create a pipe
+        //this is a bad situation, and it is probably not safe to continue the shell
+        fprintf(stderr, "Failed to create pipe, shell will quit now: %s\n", strerror(errno));
+        exit(errno);
     }
 }
-
 /*
  * runs the specified chain of commands
  * 
