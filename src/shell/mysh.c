@@ -1,6 +1,8 @@
 // The main loop for the command shell.
 
 #include "shell_utils.h"
+#include "cmd_parse.h"
+#include "child_process.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -17,10 +19,6 @@ int main(void)
 		// Get working directory.
 		char username[CMD_MAX + 1];
 		char path[PATH_MAX + 1];
-		if (path == NULL) {
-			printf("Memory allocation failed!\n");
-			exit(1);
-		}
 		// Get the current username.
 		if (getlogin_r(username, sizeof(username)) != 0) {
 			printf("Getting username failed!\n");
@@ -64,6 +62,12 @@ int main(void)
 		else if (strncmp(strncpy(buf2, command, 4), "exit", 4) == 0) {
 			exit(0);
 		}
+
+		// If the command does not fall into any of the above cases, give the
+		// command to our parser.
+		CmdChain chain = parseCmds(command);
+		// Handle piping and other things.
+		startChildren(chain);
 	}
 
 	return 0;
