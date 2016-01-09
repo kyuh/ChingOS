@@ -12,7 +12,7 @@ typedef struct {
 } TentativeCmdInfo;
 
 
-StringArray sepStringWithQuotes(char *buf, char separator, bool allowDup){
+StringArray sepStringWithQuotes(char *buf, char separator){
     StringArray stArr = createStringArray(10);
 
     bool quote_entered = false;
@@ -45,14 +45,6 @@ StringArray sepStringWithQuotes(char *buf, char separator, bool allowDup){
                 return stArr;
             }
 
-            // Quick check to make sure that there aren't two pipes in a row
-            // (More in-depth checking tbd elsewhere, but having
-            // this will mess up the parser now)
-            if (*(cur_pos + 1) == separator && !allowDup){
-                fprintf(stderr, "Invalid duplicate of character\n");
-                exit(-1);
-            }
-
             // Mark the start of new command
             last_token_pos = cur_pos + 1;
         }
@@ -62,7 +54,7 @@ StringArray sepStringWithQuotes(char *buf, char separator, bool allowDup){
 
 
 TentativeCmdInfo parseSingleCmd(char *cmd_blob){
-    StringArray sa_prelim_argv = sepStringWithQuotes(cmd_blob, ' ', true);
+    StringArray sa_prelim_argv = sepStringWithQuotes(cmd_blob, ' ');
 
     TentativeCmdInfo tci;
     tci.inputFilename = NULL;
@@ -121,7 +113,7 @@ TentativeCmdInfo parseSingleCmd(char *cmd_blob){
 
 #if 0
 CmdChain parseCmds(char *buf) {
-    StringArray cmd_string_blobs = sepStringWithQuotes(buf, '|', false);
+    StringArray cmd_string_blobs = sepStringWithQuotes(buf, '|');
     int n = cmd_string_blobs.size;
 
     TentativeCmdInfo *tentative_cmd_info_list = safeMalloc(n * sizeof(TentativeCmdInfo));

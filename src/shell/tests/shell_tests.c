@@ -14,7 +14,7 @@ bool testSafeMalloc1() {
 }
 
 void testCmdParsing1(){
-    StringArray stArr = sepStringWithQuotes("grep | blah | plz", '|', false);
+    StringArray stArr = sepStringWithQuotes("grep | blah | plz", '|');
     printf("SIZE: %d\n", stArr.size);
     for (int i = 0; i < stArr.size; i++){
         printf("%s\n", stringArrayGet(&stArr, i));
@@ -22,7 +22,7 @@ void testCmdParsing1(){
 }
 
 void testCmdParsing2(){
-    StringArray stArr = sepStringWithQuotes("grep | blah \" whoo | whee \" plz", '|', false);
+    StringArray stArr = sepStringWithQuotes("grep | blah \" whoo | whee \" plz", '|');
     printf("SIZE: %d\n", stArr.size);
     for (int i = 0; i < stArr.size; i++){
         printf("%s\n", stringArrayGet(&stArr, i));
@@ -31,7 +31,7 @@ void testCmdParsing2(){
 
 
 void testCmdParsing2a(){
-    StringArray stArr = sepStringWithQuotes("grep | blah whoo ||||||||| whee plz", '|', true);
+    StringArray stArr = sepStringWithQuotes("grep | blah whoo ||||||||| whee plz", '|');
     printf("SIZE: %d\n", stArr.size);
     for (int i = 0; i < stArr.size; i++){
         printf("%s\n", stringArrayGet(&stArr, i));
@@ -42,7 +42,7 @@ void testCmdParsing2a(){
 
 
 void testCmdParsing3(){
-    StringArray stArr = sepStringWithQuotes("grep Allow < output.txt", ' ', true);
+    StringArray stArr = sepStringWithQuotes("grep Allow < output.txt", ' ');
     printf("SIZE: %d\n", stArr.size);
     for (int i = 0; i < stArr.size; i++){
         printf("%s\n", stringArrayGet(&stArr, i));
@@ -51,7 +51,7 @@ void testCmdParsing3(){
 
 void testCmdParsing4(){
     printf("\n\n");
-    StringArray stArr = sepStringWithQuotes("grep | blah sorgs meh <halp.txt | plz", '|', false);
+    StringArray stArr = sepStringWithQuotes("grep | blah sorgs meh <halp.txt | plz", '|');
     printf("SIZE: %d\n", stArr.size);
 
     TentativeCmdInfo tci = parseSingleCmd(stringArrayGet(&stArr, 1));
