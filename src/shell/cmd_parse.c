@@ -27,7 +27,7 @@ StringArray sepStringWithQuotes(char *buf, char separator){
     while (true){
         if (*cur_pos == '\"'){
             quote_entered = !quote_entered;
-        } else if ((*cur_pos == separator && !quote_entered) || *cur_pos == '\0') {
+        } else if ((*cur_pos == separator && !quote_entered) || *cur_pos == '\n' || *cur_pos == '\0') {
 
             int token_nChars = cur_pos - last_token_pos;
             // Account for null character
@@ -39,7 +39,7 @@ StringArray sepStringWithQuotes(char *buf, char separator){
 
             stringArrayInsert(&stArr, token_string);
 
-            if (!(*cur_pos)){
+            if (*cur_pos == '\n' || *cur_pos == '\0'){
 
                 // Check for unclosed quotation
                 if (quote_entered){
