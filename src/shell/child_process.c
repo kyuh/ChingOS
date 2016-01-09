@@ -4,7 +4,17 @@
 #include <shell_utils.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-#include <libexplain/wait.h>
+#include <errno.h>
+#include <string.h>
+
+
+/*
+ * If a command is not found, other commands will still run to completion (bash does this)
+ * The shell will also not exit
+ *
+ * If something terrible happens like we run out of fds, as before, children will still run 
+ * until completion, but the shell will go away and 
+ */
 
 //read data from output
 //write data to input
@@ -24,8 +34,9 @@ typedef struct {
  * (recieve data from input, output it into output)
  */
 void forkChild(char **argv, const Pipe inputStream, const Pipe outputStream) {
-    //don't do anything if we're the child process
-    if(!fork()) {
+    pid_t pid = fork();
+    //run the command if we're the child process
+    if(pid > 0) {
         //set input and output of the process
 
         //only set the streams if we're reading or writing from a pipe
@@ -49,6 +60,16 @@ void forkChild(char **argv, const Pipe inputStream, const Pipe outputStream) {
 
         //execute the other program
         execvp(argv[0], argv);
+
+        //if we're here, the execution failed
+        //we'll tell the user and then terminate
+        fprintf(stderr, "failed to execute child process: %s\n", strerror(errno));
+        exit(errno);
+    } else if(pid == -1) {
+        //if the fork failed, we're in a bad place
+        //it's probably not safe to continue running the shell at all
+        //so we'll just exit the shell and give up
+        fprintf(stderr, "Failed to create fork, shell will quit nkw: %s\n", strerror(errno));
     }
 }
 
@@ -66,16 +87,28 @@ void closeStreams(Pipe *pipes, int count) {
 }
 
 /*
+ * runs the specified chain of commands
+ * 
+ * If a command is not found or a child process is forked, but fails to execute
+ * the given command, the shell will continue, and other commands will still run
  *
+ * 
  */
 void startChildren(CmdChain commands) {
     //allocate pipes
     //pipes between each command, plus an input and output
     //printf("%d\n", sizeof(Pipe) * (commands.nCmds + 1));
-    Pipe * pipes = (Pipe *)malloc(sizeof(Pipe) * (commands.nCmds + 1));
+    Pipe * pipes = (Pipe *)safeMalloc(sizeof(Pipe) * (commands.nCmds + 1));
     
     for(int i = 0; i < commands.nCmds + 1; i++) {
-        pipe((int*)(pipes + i));
+        //try allocating the pipe
+        if(pipe((int*)(pipes + i)))
+        {
+            //if the pipe failed to allocate, we're in a bad place
+            //it's probably not safe to continue running the shell at all
+            //so we'll just exit the shell and give up
+            fprintf(stderr, "Failed to create pipe, shell will quit now: %s\n", strerror(errno));
+        }
     }
     
     //set the input stream to stdin
