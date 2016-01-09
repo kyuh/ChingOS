@@ -1,8 +1,12 @@
 /* Utils for custom shell.
  */
 
+#ifndef SHELL_UTILS_H
+#define SHELL_UTILS_H
+
 #include <stdio.h>
 #include <stdlib.h>
+#include "array_utils.h"
 
 typedef struct {
     char **argv;
@@ -10,6 +14,7 @@ typedef struct {
 } CmdInfo;
 
 typedef struct {
+    // FILEs are NULL if stdin or stdout (respectively) should be used
     FILE *inputStream;
     FILE *outputStream;
     CmdInfo *cmds;
@@ -24,3 +29,5 @@ void* safeMalloc(size_t nBytes) {
     }
     return ptr;
 }
+
+#endif // SHELL_UTILS_H

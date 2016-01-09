@@ -1,6 +1,6 @@
-BINARIES = outerr sleepycat cattysleep shell_tests
+BINARIES = outerr sleepycat cattysleep shell_tests array_tests
 
-CFLAGS = -Wall
+CFLAGS = -Wall -std=c99
 
 
 all: $(BINARIES)
@@ -16,6 +16,9 @@ cattysleep: cattysleep.o
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
 shell_tests: shell_tests.o
+	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
+
+array_tests: array_tests.o
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
 
