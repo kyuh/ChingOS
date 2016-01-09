@@ -70,6 +70,7 @@ void forkChild(char **argv, const Pipe inputStream, const Pipe outputStream) {
         //it's probably not safe to continue running the shell at all
         //so we'll just exit the shell and give up
         fprintf(stderr, "Failed to create fork, shell will quit nkw: %s\n", strerror(errno));
+        exit(errno);
     }
 }
 
