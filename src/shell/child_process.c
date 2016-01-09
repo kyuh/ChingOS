@@ -1,12 +1,12 @@
 #include <stdlib.h>
 #include <stdio.h> 
 #include <unistd.h>
-#include <shell_utils.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <errno.h>
 #include <string.h>
 
+#include "child_process.h"
 
 /*
  * If a command is not found, other commands will still run to completion (bash does this)
@@ -42,20 +42,22 @@ void forkChild(char **argv, const Pipe inputStream, const Pipe outputStream) {
         //only set the streams if we're reading or writing from a pipe
         if(inputStream.input != 0) {
             close(inputStream.input);
-            //we'll also close stdin, because we don't need it
-            close(STDIN_FILENO);
-
+            
             //duplicate the descriptor in
             dup2(inputStream.output, STDIN_FILENO);
+            
+            //now close the thing we copied from 
+            close(inputStream.output);
         }
         if(outputStream.output != 1)
         {
             close(outputStream.output);
-            //we'll also close stdout, because we don't need it
-            close(STDOUT_FILENO);
 
             //duplicate the new descriptor
             dup2(outputStream.input, STDOUT_FILENO);
+            
+            //now close the thing we copied from 
+            close(outputStream.input);
         }
 
         //execute the other program
@@ -69,7 +71,7 @@ void forkChild(char **argv, const Pipe inputStream, const Pipe outputStream) {
         //if the fork failed, we're in a bad place
         //it's probably not safe to continue running the shell at all
         //so we'll just exit the shell and give up
-        fprintf(stderr, "Failed to create fork, shell will quit nkw: %s\n", strerror(errno));
+        fprintf(stderr, "Failed to create fork, shell will quit now: %s\n", strerror(errno));
         exit(errno);
     }
 }
@@ -98,7 +100,6 @@ void closeStreams(Pipe *pipes, int count) {
 void startChildren(CmdChain commands) {
     //allocate pipes
     //pipes between each command, plus an input and output
-    //printf("%d\n", sizeof(Pipe) * (commands.nCmds + 1));
     Pipe * pipes = (Pipe *)safeMalloc(sizeof(Pipe) * (commands.nCmds + 1));
     
     for(int i = 0; i < commands.nCmds + 1; i++) {
@@ -120,10 +121,6 @@ void startChildren(CmdChain commands) {
     pipes[commands.nCmds].input = 1;
     pipes[commands.nCmds].output = 1;
 
-    for(int i = 0; i < commands.nCmds + 1; i++) {
-        printf("%d  %d \n", pipes[i].input, pipes[i].output);
-    }
-    
 
     //now start each child
     for(int i = 0; i < commands.nCmds; i++) {
