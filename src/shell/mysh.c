@@ -59,8 +59,7 @@ int main(void)
 			}
 			if (chdir(new_path) != 0) {
 				// printf("%d\n", chdir(new_path));
-				printf("Changing directories failed!\n");
-				exit(1);
+				printf("Not a valid directory path!\n");
 			}
 		}
 		else if (strncmp(strncpy(buf2, command, 4), "exit", 4) == 0) {
