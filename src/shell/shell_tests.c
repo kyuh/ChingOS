@@ -23,14 +23,6 @@ void testCmdParsing1(){
     }
 }
 
-void testCmdParsing2(){
-    printf("\n\n");
-    StringArray stArr = sepStringWithQuotes("grep | blah \" whoo | whee \" plz", '|');
-    printf("SIZE: %d\n", stArr.size);
-    for (int i = 0; i < stArr.size; i++){
-        printf("%s\n", stringArrayGet(&stArr, i));
-    }
-}
 
 
 void testCmdParsing2a(){
@@ -88,6 +80,15 @@ void testCmdParsing5(){
     }
 }
 
+
+void testCmdParsing2(){
+    printf("\n\n");
+    StringArray stArr = sepStringWithQuotes("grep | blah \" whoo | whee \" plz", '|');
+    printf("SIZE: %d\n", stArr.size);
+    for (int i = 0; i < stArr.size; i++){
+        printf("%s\n", stringArrayGet(&stArr, i));
+    }
+}
 
 void testCmdParsing6(){
     printf("\n\n");
@@ -150,10 +151,10 @@ void testCmdParsing7(){
 int main() {
     assert(testSafeMalloc1());
 /*    testCmdParsing1();
-    testCmdParsing2();
     testCmdParsing2a();
     testCmdParsing3();
     testCmdParsing4();*/
+    testCmdParsing2();
     testCmdParsing5();
     testCmdParsing6();
     testCmdParsing7();
