@@ -168,7 +168,7 @@ CmdChain parseCmds(char *buf) {
         tentative_cmd_info_list[i] = parseSingleCmd( stringArrayGet(&cmd_string_blobs, i) );
     }
 
-    // Only first cmd should (optionally) have an input redirect
+    // Only last cmd should (optionally) have an output redirect
     for (int i = 0; i < n-1; i++){
         if (tentative_cmd_info_list[i].outputFilename){
             fprintf(stderr, "Invalid output redirect\n");
@@ -176,7 +176,7 @@ CmdChain parseCmds(char *buf) {
         }
     }
 
-    // Only last cmd should (optionally) have an output redirect
+    // Only first cmd should (optionally) have an input redirect
     for (int i = 1; i < n; i++){
         if (tentative_cmd_info_list[i].inputFilename){
             fprintf(stderr, "Invalid input redirect\n");
