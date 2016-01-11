@@ -176,8 +176,11 @@ CmdChain parseCmds(char *buf) {
     else
         cc.inputStream = STDIN_FILENO;
 
-    if (outputFilename)
-        cc.outputStream = open(outputFilename, O_WRONLY);
+    if (outputFilename) //open or create file, create with 644
+        cc.outputStream = open(outputFilename, O_WRONLY | O_CREAT, 
+            S_IRUSR | S_IWUSR |
+            S_IRGRP |
+            S_IROTH);
     else
         cc.outputStream = STDOUT_FILENO;
 
