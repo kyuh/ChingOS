@@ -80,7 +80,7 @@ void testCmdParsing5(){
     }
 }
 
-
+#if 0
 void testCmdParsing2(){
     printf("\n\n");
     StringArray stArr = sepStringWithQuotes("grep | blah \" whoo | whee \" plz", '|', false);
@@ -89,6 +89,7 @@ void testCmdParsing2(){
         printf("%s\n", stringArrayGet(&stArr, i));
     }
 }
+#endif
 
 void testCmdParsing6(){
     printf("\n\n");
@@ -154,7 +155,7 @@ int main() {
     testCmdParsing2a();
     testCmdParsing3();
     testCmdParsing4();*/
-    testCmdParsing2();
+    //testCmdParsing2();
     testCmdParsing5();
     testCmdParsing6();
     testCmdParsing7();
