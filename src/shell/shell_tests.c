@@ -118,6 +118,35 @@ void testCmdParsing6(){
 }
 
 
+void testCmdParsing7(){
+    printf("\n\n");
+    CmdChain cc = parseCmds("grep \"array\" >out.txt\n");
+
+    printf("INPUT: %d\n", cc.inputStream);
+    printf("OUTPUT: %d\n", cc.outputStream);
+    printf("nCmds: %d\n", cc.nCmds);
+
+    for (int i = 0; i < cc.nCmds; i++){
+        for (int j = 0; j < cc.cmds[i].argc; j++){
+            printf("i = %d\n",i);
+            printf("j = %d\n",j);
+            printf("%s\n", cc.cmds[i].argv[j]);
+        }
+    }
+
+    printf("%d\n", cc.nCmds);
+    printf("%d\n", cc.cmds[0].argc);
+
+    char *s = cc.cmds[0].argv[0];
+    printf("STR: %s\n", cc.cmds[0].argv[0]);
+    while (*s){
+        printf("%d\n", *s);
+        s++;
+    }
+    printf("%d\n", *s);
+}
+
+
 int main() {
     assert(testSafeMalloc1());
 /*    testCmdParsing1();
@@ -127,6 +156,7 @@ int main() {
     testCmdParsing4();*/
     testCmdParsing5();
     testCmdParsing6();
+    testCmdParsing7();
     printf("Success\n");
     return 0;
 }
