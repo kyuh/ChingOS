@@ -84,7 +84,7 @@ void testCmdParsing5(){
         for (int j = 0; j < cc.cmds[i].argc; j++){
             printf("%s\n", cc.cmds[i].argv[j]);
         }
-        printf("\n");
+        printf("DELIMITER\n");
     }
 }
 
@@ -125,7 +125,7 @@ int main() {
     testCmdParsing2a();
     testCmdParsing3();
     testCmdParsing4();*/
-    //testCmdParsing5();
+    testCmdParsing5();
     testCmdParsing6();
     printf("Success\n");
     return 0;
