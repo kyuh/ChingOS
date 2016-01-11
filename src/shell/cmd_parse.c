@@ -20,7 +20,7 @@ typedef struct {
 } TentativeCmdInfo;
 
 
-StringArray sepStringWithQuotes(char *buf, char separator){
+StringArray sepStringWithQuotes(char *buf, char separator, bool include_quote_mark){
     StringArray stArr = createStringArray(10);
 
     bool quote_entered = false;
@@ -28,11 +28,38 @@ StringArray sepStringWithQuotes(char *buf, char separator){
     char *cur_pos = buf;
 
     while (true){
+        /* Note start of a quoted phrase,
+        and get rid of the quotation mark if so chosen
+        (i.e. when parsing out the space-separated tokens in practice).
+
+        Handle the beginning quotation mark here,
+        handle the end quote in the next if-statement clause.
+
+        (Assume the quoted phrases are separated from the rest of the text
+        by another space, e.g. 
+            grep "array" >out.txt       is valid
+            grep"array">out.txt         is not
+        */
+
         if (*cur_pos == '\"'){
             quote_entered = !quote_entered;
+
+            if (include_quote_mark && quote_entered){
+                last_token_pos = cur_pos + 1;
+            }
         } else if ((*cur_pos == separator && !quote_entered) || *cur_pos == '\n' || *cur_pos == '\0') {
 
-            int token_nChars = cur_pos - last_token_pos;
+
+            // Exclude the ending quotation mark of the previous
+            // statement, if necessary
+            int token_nChars;
+            if (include_quote_mark && *(cur_pos - 1) == '\"'){
+                token_nChars = (cur_pos - 1) - last_token_pos;
+            } else {
+                token_nChars = cur_pos - last_token_pos;
+            }
+
+
             // Account for null character
             int token_alloc_size = token_nChars + 1;
 
@@ -76,7 +103,7 @@ StringArray sepStringWithQuotes(char *buf, char separator){
 
 
 TentativeCmdInfo parseSingleCmd(char *cmd_blob){
-    StringArray sa_prelim_argv = sepStringWithQuotes(cmd_blob, ' ');
+    StringArray sa_prelim_argv = sepStringWithQuotes(cmd_blob, ' ', true);
 
     TentativeCmdInfo tci;
     tci.inputFilename = NULL;
@@ -133,7 +160,7 @@ TentativeCmdInfo parseSingleCmd(char *cmd_blob){
 
 
 CmdChain parseCmds(char *buf) {
-    StringArray cmd_string_blobs = sepStringWithQuotes(buf, '|');
+    StringArray cmd_string_blobs = sepStringWithQuotes(buf, '|', false);
     int n = cmd_string_blobs.size;
 
     TentativeCmdInfo *tentative_cmd_info_list = safeMalloc(n * sizeof(TentativeCmdInfo));

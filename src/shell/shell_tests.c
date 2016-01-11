@@ -83,7 +83,7 @@ void testCmdParsing5(){
 
 void testCmdParsing2(){
     printf("\n\n");
-    StringArray stArr = sepStringWithQuotes("grep | blah \" whoo | whee \" plz", '|');
+    StringArray stArr = sepStringWithQuotes("grep | blah \" whoo | whee \" plz", '|', false);
     printf("SIZE: %d\n", stArr.size);
     for (int i = 0; i < stArr.size; i++){
         printf("%s\n", stringArrayGet(&stArr, i));
