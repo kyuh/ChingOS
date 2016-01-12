@@ -40,9 +40,28 @@ int main(void)
 		printf("%s ", prompt);
 
 		// Now block on user input waiting for user input.
-		char command[CMD_MAX + 1];
-		if (fgets(command, sizeof(command), stdin) == NULL) {
+		// char command[CMD_MAX + 1];
+		char *command = (char*) calloc(CMD_MAX + 1, sizeof(char));
+		if (fgets(command, CMD_MAX + 1, stdin) == NULL) {
 			printf("Getting user input failed!\n");
+		}
+
+		// Parse multiline commands.
+		while (strchr(command, '\\') == command + strlen(command) - 2) {
+			printf("> ");
+			// Strip the backslash from the command.
+			char* temp = strrchr(command, '\\');
+			*temp = 0;
+			char* newline = (char*) calloc(CMD_MAX + 1, sizeof(char));
+			if (newline == NULL) {
+				printf("Ran out of memory!\n");
+				exit(1);
+			}
+			if (fgets(newline, CMD_MAX + 1, stdin) == NULL) {
+				printf("Getting user input failed!\n");
+			}
+			strncat(command, newline, CMD_MAX + 1);
+			free(newline);
 		}
 
 		// Check if the user wants to use the built-in functions cd or exit.
