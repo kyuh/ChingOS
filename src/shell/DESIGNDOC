@@ -119,7 +119,11 @@ TODO
 >> redirection in a simple command like "a < inp.txt > out.txt", by
 >> describing what process takes care of the redirection and when.
 
-TODO
+The shell process will open the file descriptors for the inp.txt and
+out.txt files.  The shell process forks, and the parent will close
+the file descriptors.  The child process will set those handles as
+its input and output stream.  We then run the new program, and that
+code will be responsible for closing the streams.
 
 >> A4: Illustrate how you solved the problem of setting up the pipes
 >> between multiple operations in a single command, by describing
@@ -130,18 +134,55 @@ TODO
 >> Keep your description of each process' responsibilities limited to
 >> ~25 words or less.
 
-TODO
+Shell Process:
+The input FD (stdin) already exists.  Create a pipe for a -> b.  Fork 
+off "a" with the stdin and pipe fds.  We don't close stdin.  Save the 
+pipe a -> b, and create a pipe for b -> c.  Start "b" with the pipes.
+Close the pipe a -> b, save the pipe b -> c, and output (stdout) 
+already exists.  Start "c" and close b -> c, and don't close stdout.
+
+"a" Process:
+Don't close stdin, close the input fd from a -> b pipe.  Then run the 
+application.  The application will close the other direction.
+
+"b" Process:
+Close the output fd from a -> b pipe, input fd from b -> c pipe. Then 
+run the app.
+
+"c" Process:
+Don't close stdout, close the output fd from b -> c pipe.  Then run the 
+application.  The application will close the other direction.
 
 >> A5: Similarly, describe the details of how terminated processes are
 >> reaped in the example command "a | b | c".
 
-TODO
+The shell uses the wait() command to wait for all child processes to
+terminate.  This will ensure that all children are reaped before
+the user may enter the next command.
 
 >> A6: Similarly, describe which processes are responsible for setting
 >> up the redirections in the example command
 >> "a < inp.txt | b | c > out.txt".
 
-TODO
+Shell Process:
+The shell process will open the file descriptors for the inp.txt and
+out.txt files.  Use the input fd.   Create a pipe for a -> b.  Fork 
+off "a" with the inp.txt and pipe fds.  We close the inp.txt.  Save the 
+pipe a -> b, and create a pipe for b -> c.  Start "b" with the pipes.
+Close the pipe a -> b, save the pipe b -> c, and output out.txt fd
+already exists.  Start "c" and close b -> c, and don't close out.txt.
+
+"a" Process:
+Don't close the file fd, close the input fd from a -> b pipe.  Then run the 
+application.  The application will close the other direction.
+
+"b" Process:
+Close the output fd from a -> b pipe, input fd from b -> c pipe. Then 
+run the app.
+
+"c" Process:
+Don't close the file fd, close the output fd from b -> c pipe.  Then run the 
+application.  The application will close the other direction.
 
 ---- RATIONALE ----
 
