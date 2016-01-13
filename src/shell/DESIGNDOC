@@ -38,13 +38,15 @@ Andrew Zhao <azhao@caltech.edu>
 Hours Spent:
 Daniel: 4
 Kevin:
-Andrew:
+Andrew: 6.5
 
 Focus
 Daniel: Wrote the main() function for the shell and implemented the built-in
         functions cd and exit. Also implemented multiline commands.
 Kevin: Wrote the parser TODO
-Andrew: Wrote the piper TODO
+Andrew: Wrote the startChildren() function that takes in a parsed command structure,
+        and starts the child process.  Handles creating pipes, forking children,  
+        redirecting IO, and waiting for children to terminate.
 ---- DATA STRUCTURES ----
 
 >> A1: Describe how your command shell manages parsing and executing
@@ -52,14 +54,64 @@ Andrew: Wrote the piper TODO
 >> command "a arg1 arg2 | b arg1 | c arg1 arg2 arg3".  How does your
 >> shell internally represent such a command?
 
-TODO
+TODO how 2 parse
+
+The command will be represented as the following.  Shorthand array notation
+will be used to represent this, though the underlying structure is made of
+c pointer arrays and structs.
+
+{
+    inputStream: STDIN_FILENO
+    outputStream: STDOUT_FILENO
+    nCmds: 3
+    cmds: [
+        {
+            argc: 3,
+            argv: ["a", "arg1", "arg2"]
+        },
+        {
+            argc: 2,
+            argv: ["b", "arg1"]
+        },
+        {
+            argc: 3,
+            argv: ["c", "arg1", "arg2", "arg3"]
+        }
+    ]
+}
+
+This struct will be handled by the startChildren() function. The initial input 
+stream will be set to the one specified in the struct, which is stdin.  The 
+programs are forked off one at a time in order, and pipes are created as needed.
+The final pipe is not created, and just set to the output stream specified in
+the struct, which is stdout.
 
 >> A2: Now, given the command:
 >> "a arg1 arg2 < inp.txt | b arg1 | c arg1 arg2 arg3 > out.txt"
 >> Briefly explain specifically how the redirections are parsed and
 >> represented, and by what processes.
 
+
 TODO
+{
+    inputStream: (file descriptor for inp.txt)
+    outputStream: (file descriptor for out.txt)
+    nCmds: 3
+    cmds: [
+        {
+            argc: 3,
+            argv: ["a", "arg1", "arg2"]
+        },
+        {
+            argc: 2,
+            argv: ["b", "arg1"]
+        },
+        {
+            argc: 3,
+            argv: ["c", "arg1", "arg2", "arg3"]
+        }
+    ]
+}
 
 ---- ALGORITHMS ----
 
@@ -96,8 +148,13 @@ TODO
 >> A7: Why must the chdir and exit commands be implemented as built-in
 >> functions, rather than external programs?
 
-UNIX does not provide programs for cd and exit in /bin since these two commands
-also need dedicated hardware support to be implemented. NEEDS CHECK
+UNIX does not provide for cd as a seperate utility because cd must change
+the working directory state of the shell program.  Any child program started
+by the shell does not have access to its parent, so the child will not be 
+able to edit its parent's state.
+
+Similarly, a child process cannot easily tell the parent process, the shell
+to terminate.  The shell must have a command to terminate itself.
 
 >> A8: Why did you ultimately choose this design?  In what ways is it
 >> superior to other designs you considered as you developed your solution?
