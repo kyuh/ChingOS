@@ -37,13 +37,15 @@ Andrew Zhao <azhao@caltech.edu>
 
 Hours Spent:
 Daniel: 4
-Kevin:
+Kevin: 6.5
 Andrew: 6.5
 
 Focus
 Daniel: Wrote the main() function for the shell and implemented the built-in
         functions cd and exit. Also implemented multiline commands.
-Kevin: Wrote the parser TODO
+Kevin: Wrote the parseCmds() function that takes in a given input string and
+	parses it into an intermediate command structure. Also wrote a dynamic
+	array for use here and (potentially) in the future.
 Andrew: Wrote the startChildren() function that takes in a parsed command structure,
         and starts the child process.  Handles creating pipes, forking children,  
         redirecting IO, and waiting for children to terminate.
@@ -54,9 +56,41 @@ Andrew: Wrote the startChildren() function that takes in a parsed command struct
 >> command "a arg1 arg2 | b arg1 | c arg1 arg2 arg3".  How does your
 >> shell internally represent such a command?
 
-TODO how 2 parse
+The full command string is initially separated at all pipe marks that are
+not contained within a pair of quotation marks. (This is checked by simply
+maintaining a toggle that we flip whenever we encounter a new quotation mark,
+as we go through the above string.) After this, we have the array of strings,
+corresponding roughly to individual commands:
+(* indicates beginning and end of each string)
+[
+	*a arg1 arg2 *
+	* b arg1 *
+	* c arg1 arg2 arg3*
+]
 
-The command will be represented as the following.  Shorthand array notation
+Then, each string above is separated by spaces, and this time, any quotation
+marks are removed from the final output (this doens't matter for this example).
+Each of new array of strings is placed in an intermediate struct
+(TentativeCmdInfo) that also keeps track of parsed inputs and outputs. 
+(More on that in the next question.)
+In addition, we also make extra space in each string array for a NULL value,
+in preparation for the post-parsing stage.
+
+Hence, we then have the following array (extraneous info not included here):
+[
+	TentativeCmdInfo:
+		argv: [a, arg1, arg2, NULL]
+		argc: 3
+	TentativeCmdInfo:
+		argv: [b, arg1, NULL]
+		argc: 2
+	TentativeCmdInfo:
+		argv: [c, arg1, arg2, arg3, NULL]
+		argc: 4
+	
+After some further processing of input and output redirects (see next
+question),tThe command will be represented as the following.  
+Shorthand array notation
 will be used to represent this, though the underlying structure is made of
 c pointer arrays and structs.
 
