@@ -6,6 +6,8 @@
 				   
 ---- GROUP ----
 
+ChingOS
+
 >> Fill in the names and email addresses of your group members.
 
 Daniel Gu <dgu@caltech.edu>
@@ -25,6 +27,8 @@ Andrew Zhao <azhao@caltech.edu>
 
 >> If you have any preliminary comments on your submission, notes for the
 >> TAs, or extra credit, please include them here.
+
+We have done one piece of extra credit: implementing multiline commands.
 
 >> Please cite any offline or online sources you consulted while
 >> preparing your submission, other than the Pintos documentation, course
@@ -294,7 +298,16 @@ to terminate.  The shell must have a command to terminate itself.
 >> A8: Why did you ultimately choose this design?  In what ways is it
 >> superior to other designs you considered as you developed your solution?
 
-TODO
+We chose this design because it was modular, separating the command shell into
+3 more-or-less independent parts: the main loop of the shell itself, the
+parser, which handles the actual commands given to the shell, and the
+startChildren() function, which starts child processes and handles pipes and
+redirection and stuff. This has the advantage that the code is easily
+maintainable, since errors only to need to be fixed once, at the source. It
+also had the advantage that since the parts are independent, work on each part
+could proceed in parallel. We didn't really consider other designs when we
+started, since this was the first design we came up with and it was a workable
+and easy-to-maintain structure.
 
 			  SURVEY QUESTIONS
 			  ================
