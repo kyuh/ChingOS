@@ -1,0 +1,339 @@
+			+------------------+
+			|      CS 124      |
+			| PROJECT 1: SHELL |
+			|  DESIGN DOCUMENT |
+			+------------------+
+				   
+---- GROUP ----
+
+ChingOS
+
+>> Fill in the names and email addresses of your group members.
+
+Daniel Gu <dgu@caltech.edu>
+Kevin Yuh <kyuh@caltech.edu>
+Andrew Zhao <azhao@caltech.edu>
+
+>> Specify how many late tokens you are using on this assignment: 0  
+
+>> What is the Git repository and commit hash for your submission?
+   (You only need to include the commit-hash in the file you submit
+   on Moodle.)
+
+   Repository URL:  
+   commit ...
+
+---- PRELIMINARIES ----
+
+>> If you have any preliminary comments on your submission, notes for the
+>> TAs, or extra credit, please include them here.
+
+We have done one piece of extra credit: implementing multiline commands.
+
+>> Please cite any offline or online sources you consulted while
+>> preparing your submission, other than the Pintos documentation, course
+>> text, lecture notes, and course instructors.
+
+			   COMMAND SHELL
+			   =============
+
+---- LOGISTICS ----
+
+Hours Spent:
+Daniel: 4
+Kevin: 6.5
+Andrew: 6.5
+
+Focus
+Daniel: Wrote the main() function for the shell and implemented the built-in
+        functions cd and exit. Also implemented multiline commands.
+Kevin: Wrote the parseCmds() function that takes in a given input string and
+	parses it into an intermediate command structure. Also wrote a dynamic
+	array for use here and (potentially) in the future.
+Andrew: Wrote the startChildren() function that takes in a parsed command structure,
+        and starts the child process.  Handles creating pipes, forking children,  
+        redirecting IO, and waiting for children to terminate.
+---- DATA STRUCTURES ----
+
+>> A1: Describe how your command shell manages parsing and executing
+>> commands that contain arguments and pipes, using the example
+>> command "a arg1 arg2 | b arg1 | c arg1 arg2 arg3".  How does your
+>> shell internally represent such a command?
+
+The full command string is initially separated at all pipe marks that are
+not contained within a pair of quotation marks. (This is checked by simply
+maintaining a toggle that we flip whenever we encounter a new quotation mark,
+as we go through the above string.) After this, we have the array of strings,
+corresponding roughly to individual commands:
+[
+	"a arg1 arg2 "
+	" b arg1 "
+	" c arg1 arg2 arg3"
+]
+
+Then, each string above is separated by spaces, and this time, any quotation
+marks are removed from the final output (this doens't matter for this example).
+
+
+
+We then also parse out any strings that are actually parts of file redirects
+(more on that in the next question), and remove those from the main argument list.
+
+Each of new array of strings is placed in an intermediate struct
+(TentativeCmdInfo) that also keeps track of parsed inputs and outputs. 
+(More on that in the next question.)
+In addition, we also make extra space in each string array for a NULL value,
+in preparation for the post-parsing stage.
+
+Hence, we then have the following array (extraneous info not included here):
+[
+	TentativeCmdInfo:
+		argv: ["a", "arg1", "arg2", NULL]
+		argc: 3
+	TentativeCmdInfo:
+		argv: ["b", "arg1", NULL]
+		argc: 2
+	TentativeCmdInfo:
+		argv: ["c", "arg1", "arg2", "arg3", NULL]
+		argc: 4
+]
+	
+After some further processing of input and output redirects (see next
+question), and opening the appropriate file descriptors (which
+are simply that of stdin and stdout in this case),
+the command will be represented as the following.  
+Shorthand array notation will be used to represent this, 
+though the underlying structure is made of
+c pointer arrays and structs.
+
+CmdChain
+{
+    inputStream: STDIN_FILENO
+    outputStream: STDOUT_FILENO
+    nCmds: 3
+    cmds: [
+        {
+            argc: 3,
+            argv: ["a", "arg1", "arg2"]
+        },
+        {
+            argc: 2,
+            argv: ["b", "arg1"]
+        },
+        {
+            argc: 3,
+            argv: ["c", "arg1", "arg2", "arg3"]
+        }
+    ]
+}
+
+This struct will be handled by the startChildren() function. The initial input 
+stream will be set to the one specified in the struct, which is stdin.  The 
+programs are forked off one at a time in order, and pipes are created as needed.
+The final pipe is not created, and just set to the output stream specified in
+the struct, which is stdout.
+
+>> A2: Now, given the command:
+>> "a arg1 arg2 < inp.txt | b arg1 | c arg1 arg2 arg3 > out.txt"
+>> Briefly explain specifically how the redirections are parsed and
+>> represented, and by what processes.
+
+The process is similar as above. The first stage (non-quoted pipe-separation)
+produces the intermediate string array:
+(again, * here indicates beginning and end of each string)
+[
+	*a arg1 arg2 < inp.txt *
+	* b arg1 *
+	* c arg1 arg2 arg3 > out.txt*
+]
+
+We then separate by spaces (as above). However, at this point, the next stage
+of parsing (identifying file redirects) is important. If a < or > marker is
+standalone, then the next string (e.g. inp.txt) in the first case is the 
+identifier for the file redirect, and both "<" and "inp.txt" are not
+included in the final argv list. (Similar with > and out.txt) 
+If we had an argument where the < or > is not standalone (e.g.
+"<inp.txt", then the file name is separated from the </> marker, and
+the string as a whole is not included in argv.
+
+Similar to the situation of the previous question,
+we then have the following array, and now the 
+input and output filename are interesting::
+[
+	TentativeCmdInfo:
+		argv: ["a", "arg1", "arg2", NULL]
+		argc: 3
+		inputFilename: "inp.txt"
+		outputFilename: NULL
+	TentativeCmdInfo:
+		argv: ["b", "arg1", NULL]
+		argc: 2
+		inputFilename: NULL
+		outputFilename: NULL
+	TentativeCmdInfo:
+		argv: ["c", "arg1", "arg2", "arg3", NULL]
+		argc: 4
+		inputFilename: NULL
+		outputFilename: "out.txt"
+]
+
+An important step (omitted in the previous question for brevity)
+is that we now check whether any command other than the first
+has an input redirect, or if any command other than the last
+has an output redirect. Any such condition being true
+would indicate an invalid command, as the commands are chained
+by pipes, and hence we cannot redirect what would otherwise
+go into/come out of a pipe.
+
+We then open the necessary file descriptors, and store
+the arguments appropriately to form the final structure below:
+
+
+CmdChain
+{
+    inputStream: (file descriptor for inp.txt)
+    outputStream: (file descriptor for out.txt)
+    nCmds: 3
+    cmds: [
+        {
+            argc: 3,
+            argv: ["a", "arg1", "arg2"]
+        },
+        {
+            argc: 2,
+            argv: ["b", "arg1"]
+        },
+        {
+            argc: 3,
+            argv: ["c", "arg1", "arg2", "arg3"]
+        }
+    ]
+}
+
+
+---- ALGORITHMS ----
+
+>> A3: Illustrate how you solved the problem of setting up
+>> redirection in a simple command like "a < inp.txt > out.txt", by
+>> describing what process takes care of the redirection and when.
+
+The shell process will open the file descriptors for the inp.txt and
+out.txt files.  The shell process forks, and the parent will close
+the file descriptors.  The child process will set those handles as
+its input and output stream.  We then run the new program, and that
+code will be responsible for closing the streams.
+
+>> A4: Illustrate how you solved the problem of setting up the pipes
+>> between multiple operations in a single command, by describing
+>> what each process is responsible for.  For example, given the
+>> command "a | b | c", describe the sequence of steps in setting up
+>> the processes and their pipes, starting with your command shell's
+>> process, and going through the execution of programs a, b and c.
+>> Keep your description of each process' responsibilities limited to
+>> ~25 words or less.
+
+Shell Process:
+The input FD (stdin) already exists.  Create a pipe for a -> b.  Fork 
+off "a" with the stdin and pipe fds.  We don't close stdin.  Save the 
+pipe a -> b, and create a pipe for b -> c.  Start "b" with the pipes.
+Close the pipe a -> b, save the pipe b -> c, and output (stdout) 
+already exists.  Start "c" and close b -> c, and don't close stdout.
+
+"a" Process:
+Don't close stdin, close the input fd from a -> b pipe.  Then run the 
+application.  The application will close the other direction.
+
+"b" Process:
+Close the output fd from a -> b pipe, input fd from b -> c pipe. Then 
+run the app.
+
+"c" Process:
+Don't close stdout, close the output fd from b -> c pipe.  Then run the 
+application.  The application will close the other direction.
+
+>> A5: Similarly, describe the details of how terminated processes are
+>> reaped in the example command "a | b | c".
+
+The shell uses the wait() command to wait for all child processes to
+terminate.  This will ensure that all children are reaped before
+the user may enter the next command.
+
+>> A6: Similarly, describe which processes are responsible for setting
+>> up the redirections in the example command
+>> "a < inp.txt | b | c > out.txt".
+
+Shell Process:
+The shell process will open the file descriptors for the inp.txt and
+out.txt files.  Use the input fd.   Create a pipe for a -> b.  Fork 
+off "a" with the inp.txt and pipe fds.  We close the inp.txt.  Save the 
+pipe a -> b, and create a pipe for b -> c.  Start "b" with the pipes.
+Close the pipe a -> b, save the pipe b -> c, and output out.txt fd
+already exists.  Start "c" and close b -> c, and don't close out.txt.
+
+"a" Process:
+Don't close the file fd, close the input fd from a -> b pipe.  Then run the 
+application.  The application will close the other direction.
+
+"b" Process:
+Close the output fd from a -> b pipe, input fd from b -> c pipe. Then 
+run the app.
+
+"c" Process:
+Don't close the file fd, close the output fd from b -> c pipe.  Then run the 
+application.  The application will close the other direction.
+
+---- RATIONALE ----
+
+>> A7: Why must the chdir and exit commands be implemented as built-in
+>> functions, rather than external programs?
+
+UNIX does not provide for cd as a seperate utility because cd must change
+the working directory state of the shell program.  Any child program started
+by the shell does not have access to its parent, so the child will not be 
+able to edit its parent's state.
+
+Similarly, a child process cannot easily tell the parent process, the shell
+to terminate.  The shell must have a command to terminate itself.
+
+>> A8: Why did you ultimately choose this design?  In what ways is it
+>> superior to other designs you considered as you developed your solution?
+
+We chose this design because it was modular, separating the command shell into
+3 more-or-less independent parts: the main loop of the shell itself, the
+parser, which handles the actual commands given to the shell, and the
+startChildren() function, which starts child processes and handles pipes and
+redirection and stuff. This has the advantage that the code is easily
+maintainable, since errors only to need to be fixed once, at the source. It
+also had the advantage that since the parts are independent, work on each part
+could proceed in parallel. We didn't really consider other designs when we
+started, since this was the first design we came up with and it was a workable
+and easy-to-maintain structure.
+
+			  SURVEY QUESTIONS
+			  ================
+
+Answering these questions is optional, but it will help us improve the
+course in future years.  Feel free to tell us anything you want - these
+questions are just to spur your thoughts.  Also, feel free to be completely
+honest if there are issues with the assignment or the course - you won't be
+penalized.  We can't fix things until we know about them.  :-)
+
+>> In your opinion, was this assignment, or any one of the three problems
+>> in it, too easy or too hard?  Did it take too long or too little time?
+
+>> Did you find that working on a particular part of the assignment gave
+>> you greater insight into some aspect of OS design?
+
+>> Were there any parts of the assignment that you felt were unnecessarily
+>> tedious or pointless?
+
+>> Is there some particular fact or hint we should give students in
+>> future quarters to help them solve the problems?  Conversely, did you
+>> find any of our guidance to be misleading?
+
+>> Do you have any suggestions for the instructor and/or TAs to more
+>> effectively assist students, either for future quarters or the remaining
+>> projects?
+
+>> Any other comments?
+
