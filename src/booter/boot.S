@@ -61,7 +61,7 @@ boot_start:
     # the size is in la makefile even though donnie never told us before
     # it's nice that my c program will get silently truncated if I make 
     # it too large
-    movw $0x100, 0x2
+    movw $0x500, 0x2
 
     #location to read to
     # read out shit right after the bootloader
@@ -204,10 +204,12 @@ call_c_entry:
     # address of the thing in the elf
     movl $PROGRAM_BASE_ADDR, %ebx
     addl $24, %ebx
-
+    
+    # so we dereference the pointer
     movl (%ebx), %eax
-    addl $PROGRAM_BASE_ADDR, %eax
 
+    # the 20000 offset is already compiled in
+    # we call the program at exactly the address given
     call *%eax
 
 
