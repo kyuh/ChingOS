@@ -51,6 +51,46 @@ boot_start:
 	#        REMOVE THIS COMMENT BLOCK WHEN YOU WRITE THIS CODE.
 	#---------------------------------------------------------------------
 
+    #push the DAP onto the stack
+    # because of endianness, push things in reverse
+
+    #size of DAP, plus a byte of crap
+    pushw $0x1000
+    #number of sectors to read
+    #read the maximum since it doesn't matter what else is there
+    pushw $0xFFFF
+
+    #location to read to
+    # read out shit right after the bootloader
+    # we want to read to 0x7E00
+    # let's do segment 0x7E0 and offset 0
+    pushw $0
+    pushw $0x7E0
+
+    #read from right after bootloader
+    pushl $1
+    pushl $0
+
+    # code 42h for extended read
+    movb $0x42, %ah
+    # 1st hdd
+    movb $0x80, %dl
+
+    # set DS to stack segment
+    movw %ss, %cx
+    movw %cx, %ds
+
+    # now we need to set si to the stack pointer
+    movw %sp, %si
+
+    # we want the beginng of the stuff we put in
+    # so subtract 0x10 from the pointer
+    addw $0x10, %si
+
+    # call the interrupt to read la data
+    int $0x13
+
+
 	mov	$STR_LOADED, %si
 	call	print_str
 
