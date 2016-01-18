@@ -50,42 +50,41 @@ boot_start:
 	#
 	#        REMOVE THIS COMMENT BLOCK WHEN YOU WRITE THIS CODE.
 	#---------------------------------------------------------------------
+    
+    #set the data segment for us lazy ass asses
+    movw $0x7E0, %ax
+    movw %ax, %ds
 
-    #push the DAP onto the stack
-    # because of endianness, push things in reverse
+    # now ass some shit use the offets directly
+    
+    #size of DAP
+    movb $0x10, 0
+    #unused ass
+    movb $0x00, 0x1
 
-    #size of DAP, plus a byte of crap
-    pushw $0x1000
     #number of sectors to read
-    #read the maximum since it doesn't matter what else is there
-    pushw $0xFFFF
+    #read  a little bit just to test
+    movw $0xF, 0x2
 
     #location to read to
     # read out shit right after the bootloader
     # we want to read to 0x7E00
     # let's do segment 0x7E0 and offset 0
-    pushw $0
-    pushw $0x7E0
+    movw $0, 0x4
+    movw $0x7E1, 0x6
 
     #read from right after bootloader
-    pushl $1
-    pushl $0
+    movl $1, 0x8
+    movl $0, 0x12
 
     # code 42h for extended read
     movb $0x42, %ah
     # 1st hdd
     movb $0x80, %dl
 
-    # set DS to stack segment
-    movw %ss, %cx
-    movw %cx, %ds
-
-    # now we need to set si to the stack pointer
-    movw %sp, %si
-
-    # we want the beginng of the stuff we put in
-    # so subtract 0x10 from the pointer
-    addw $0x10, %si
+    # our ds is already where it should be
+    # now just set the si to 0
+    movw $0, %si
 
     # call the interrupt to read la data
     int $0x13
