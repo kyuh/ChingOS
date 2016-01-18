@@ -44,13 +44,6 @@ boot_start:
 	mov	$STR_LOADING, %si
 	call	print_str
 
-	#---------------------------------------------------------------------
-	# TODO:  Load the remainder of the program into memory using int 13h
-	#        "Extended Read Operation."  If it fails, jump to boot_fail.
-	#
-	#        REMOVE THIS COMMENT BLOCK WHEN YOU WRITE THIS CODE.
-	#---------------------------------------------------------------------
-    
     #set the data segment for us lazy ass asses
     movw $0x7E0, %ax
     movw %ax, %ds
@@ -62,16 +55,20 @@ boot_start:
     #unused ass
     movb $0x00, 0x1
 
-    #number of sectors to read
-    #read  a little bit just to test
-    movw $0xF, 0x2
+    # number of sectors to read
+    # read like 128k, because reading the whole flopgorrg doesn't work
+    # TODO make sure this is actually
+    # the size is in la makefile even though donnie never told us before
+    # it's nice that my c program will get silently truncated if I make 
+    # it too large
+    movw $0x100, 0x2
 
     #location to read to
     # read out shit right after the bootloader
-    # we want to read to 0x7E00
-    # let's do segment 0x7E0 and offset 0
+    # we want to read to that program base address
+    # just set the segment to what we want
     movw $0, 0x4
-    movw $0x7E1, 0x6
+    movw $PROGRAM_BASE_SEGMENT, 0x6
 
     #read from right after bootloader
     movl $1, 0x8
@@ -88,7 +85,8 @@ boot_start:
 
     # call the interrupt to read la data
     int $0x13
-
+    
+    #TODO make sure no gay ass failures happen
 
 	mov	$STR_LOADED, %si
 	call	print_str
@@ -110,24 +108,24 @@ boot_start:
 	# switch over to protected mode.
 
 start_protected:
-
-	#---------------------------------------------------------------------
-	# TODO:  Switch from real mode into protected mode.  The process is
-	#        straightforward:
-	#
-	#        1)  Disable interrupts, since any interrupt during this
+    # so we need to clear that ds before doing this shit or else
+    # everything will explorg
+    movw $0, %ax
+    movw %ax, %ds
+    
+    #        1)  Disable interrupts, since any interrupt during this
 	#            process would demolish us.  (We don't turn interrupts
 	#            back on until we are safely in our C program, and have
 	#            set up an Interrupt Descriptor Table.)
-	#
-	#        2)  Set the Global Descriptor Table Register (GDTR) to our
+    cli
+	
+    #        2)  Set the Global Descriptor Table Register (GDTR) to our
 	#            simple Global Descriptor Table specified at the end of
 	#            the boot-loader.  You will need to write it like this,
 	#            since we are still in 16-bit real mode:
-	#
-	#            data32 addr32 lgdt gdtdesc
-	#
-	#            (We need a data32 prefix to ensure that all 32 bits of
+    data32 addr32 lgdt gdtdesc
+	
+    #            (We need a data32 prefix to ensure that all 32 bits of
 	#            the GDT descriptor are loaded; default is to load only
 	#            24 bits.  The CPU doesn't need an addr32 prefix but ELF
 	#            doesn't do 16-bit relocations.)
@@ -138,6 +136,9 @@ start_protected:
 	#            need it!  Also, you should not modify any other bits in
 	#            cr0:  read it, OR in the appropriate bit(s), then write
 	#            it back.
+    movl %cr0, %eax
+    orl $CR0_PE, %eax
+    movl %eax, %cr0
 	#
 	#            You should use the constants in the boot.h header file
 	#            for this step, to make your code more readable.
@@ -199,6 +200,16 @@ call_c_entry:
 	#        REMOVE THIS COMMENT BLOCK WHEN YOU WRITE THIS CODE.  (FEEL
 	#        FREE TO INCORPORATE ANY OF THE ABOVE COMMENTS INTO YOUR CODE!)
 	#---------------------------------------------------------------------
+
+    # address of the thing in the elf
+    movl $PROGRAM_BASE_ADDR, %ebx
+    addl $24, %ebx
+
+    movl (%ebx), %eax
+    addl $PROGRAM_BASE_ADDR, %eax
+
+    call *%eax
+
 
 	#=====================================================================
 	# The rest of this file contains helper functions for the 16-bit

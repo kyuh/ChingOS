@@ -11,6 +11,9 @@
 /* The main program expects to be loaded at address 0x00020000 */
 #define PROGRAM_BASE_ADDR 0x00020000
 
+/* you know becuse yeah */
+#define PROGRAM_BASE_SEGMENT 0x0002000
+
 /* Flags in control register 0. */
 #define CR0_PE 0x00000001      /* Protection Enable. */
 #define CR0_EM 0x00000004      /* (Floating-point) Emulation. */
