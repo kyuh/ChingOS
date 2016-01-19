@@ -47,17 +47,51 @@ void color_screen(unsigned char color)
 char string[] = "Nico Nico Ni";
 char empty[] = " ";
 
-//TODO no good
-void write_string_offset(unsigned char color, char* string, int offset) {
-	char *video = (char*) VIDEO_BUFFER + offset;
-	while(*string != 0) {
-		*video++ = *string++;
-		*video++ = color;
-	}
+
+////////////////
+// code to draw sprites
+
+#define BULLET_WIDTH 8
+#define BULLET_HEIGHT 8
+
+// color is NOT a vga, color, it's from 1-16 in the bullet strip
+void draw_bullet(int color, int type, int x, int y)
+{
+    //we are willing to draw bullets partially clipping off the screen
+	char *video = (char*) VIDEO_BUFFER;
+
+    //bullet sheet is 128 px wide
+    char *bullet_sheet = &(assets->bullets[0]);
+    char *this_bullet = bullet_sheet + BULLET_WIDTH * color + BULLET_HEIGHT * 128 * type;
+
+    for(int xi = 0; xi < BULLET_WIDTH; xi++)
+    {
+        for(int yi = 0; yi < BULLET_HEIGHT; yi++)
+        {
+            int xpos = x + xi;
+            int ypos = y + yi;
+            //bounds check and transparency check
+            if(xpos > 0 && xpos < X_RES &&
+               ypos > 0 && ypos < Y_RES &&
+               this_bullet[xi + yi * 128])
+            {
+                video[xpos + X_RES * ypos] = this_bullet[xi + 128 * yi];
+            }
+        }
+    }
 }
+
+////////////////
+// code to write characters and strings
+
+
+//
+// color is a VGA color, look at the vga color palette
+//
 
 #define CHAR_WIDTH 4
 #define CHAR_HEIGHT 8
+
 
 void write_char(unsigned char color, char* screen_position, char* char_position)
 {
@@ -73,7 +107,7 @@ void write_char(unsigned char color, char* screen_position, char* char_position)
     }
 }
 
-// TODO bounds checking
+// Warning, does not check bounds
 void write_string_position(unsigned char color, char* string, int x, int y)
 {
     char* font_table = &(assets->font[0]);
@@ -101,22 +135,16 @@ void write_string_position(unsigned char color, char* string, int x, int y)
     }
 }
 
-//TODO no good
 void write_string(unsigned char color, char* string) {
-	char *video = (char*) VIDEO_BUFFER;
-	while(*string != 0) {
-		*video++ = *string++;
-		*video++ = color;
-	}
+    write_string_position(color, string, 0, 0);
 }
 
+//DED method, do not call
 void color_pixel(unsigned char color, unsigned short offset) {
-	char *video = (char*) VIDEO_BUFFER + offset;
-	*video++ = 219;
-	*video++ = color;
-	// (unsigned char *) VIDEO_BUFFER[offset] = color;
 }
-
+//also DED
+void write_string_offset(unsigned char color, char* string, int offset) {
+}
 
 
 void init_video(void) {
@@ -130,22 +158,13 @@ void init_video(void) {
     write_string_position(5, "wowowow", 5, 5);
     write_string_position(5, hu, 5, 15);
     write_string_position(5, katana, 5, 25);
+
+    draw_bullet(6, 11, 5, 5);
     /* TODO:  Do any video display initialization you might want to do, such
      *        as clearing the screen, initializing static variable state, etc.
      */
     // Clear Screen - not yet debugged.
     // clearScreen();
-
-    //TEST~nico~~
-    write_string_offset(RED, string, 10);
-
-    // TEST 2~~nico~~~~
-    color_pixel(RED, 50);
-    color_pixel(BLUE, 52);
-    color_pixel(YELLOW, 54);
-    color_pixel(WHITE, 210);
-    color_pixel(GREEN, 212);
-    color_pixel(CYAN, 214);
 
 }
 
