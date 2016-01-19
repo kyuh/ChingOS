@@ -25,10 +25,6 @@ void c_start(void) {
     // add the interrupt handlers
     init_timer();
     init_keyboard();
-    //for(int i = 0; i < 25; i++)
-    //{
-    //    install_interrupt_handler(i, irq_timer_handler);
-    //}
 
     // Enables interrupts after we disbled them in the bootloader. Remember to
     // disable interrupts when writing an assembly handler.
@@ -36,20 +32,16 @@ void c_start(void) {
 
      // vvv GAME STUFF GOES HERE
 
-    int x;
 
     /* Loop forever, so that we don't fall back into the bootloader code. */
     while (1) {
-        sleep_until(ticks + 3);
-    	x++;
-        if(keys_pressed[0x11])
-        {
-            write_string(RED, "nico niku");
-        }
-        else
-        {
-            write_string(GREEN, "honk honk");
-        }
+        int currentTime = ticks;
+        
+        //game logic goes here
+        
+        // 2 ticks per game loop
+        // so approximately 30fps
+        sleep_until(currentTime + 3);
     }
 }
 
