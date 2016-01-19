@@ -3,6 +3,7 @@
 #include "boot.h"
 #include "assets.h"
 #include "strings.h"
+#include "timer.h"
 
 /* This is the address of the VGA text-mode video buffer.  Note that this
  * buffer actually holds 8 pages of text, but only the first page (page 0)
@@ -50,6 +51,40 @@ char empty[] = " ";
 
 ////////////////
 // code to draw sprites
+
+#define ENEMY_DIM 16
+#define PLAYER_HEIGHT 24
+#define PLAYER_WIDTH 16
+
+void draw_player(int x, int y)
+{
+	char *video = (char*) VIDEO_BUFFER;
+    //player is offset 48 px on sprite sheet
+    //sprite sheet is 128 px wide
+
+    char *player_start = &(assets->girls[48 * 128]);
+    
+    //now offset it for the different idle animation
+    int frame = (ticks >> 5) % 4;
+
+    player_start += PLAYER_WIDTH * frame;
+
+    for(int xi = 0; xi < PLAYER_WIDTH; xi++)
+    {
+        for(int yi = 0; yi < PLAYER_HEIGHT; yi++)
+        {
+            int xpos = x + xi;
+            int ypos = y + yi;
+            //bounds check and transparency check
+            if(xpos > 0 && xpos < X_RES &&
+               ypos > 0 && ypos < Y_RES &&
+               player_start[xi + yi * 128])
+            {
+                video[xpos + X_RES * ypos] = player_start[xi + 128 * yi];
+            }
+        }
+    }
+}
 
 #define BULLET_WIDTH 8
 #define BULLET_HEIGHT 8
@@ -160,6 +195,7 @@ void init_video(void) {
     write_string_position(5, katana, 5, 25);
 
     draw_bullet(6, 11, 5, 5);
+    draw_player(5, 35);
     /* TODO:  Do any video display initialization you might want to do, such
      *        as clearing the screen, initializing static variable state, etc.
      */
