@@ -92,7 +92,7 @@ void draw_enemy(int type, int x, int y)
     //player is offset 48 px on sprite sheet
     //sprite sheet is 128 px wide
 
-    char *enemy_start = &(assets->girls[0]);
+    char *enemy_start = &(assets->girls[ENEMY_DIM * 128 * type]);
     
     //now offset it for the different idle animation
     int frame = (ticks >> 5) % 8;
@@ -226,6 +226,8 @@ void init_video(void) {
 
     draw_bullet(6, 11, 5, 5);
     draw_player(5, 35);
+    draw_enemy(0, 5, 55);
+    draw_enemy(1, 5, 70);
     /* TODO:  Do any video display initialization you might want to do, such
      *        as clearing the screen, initializing static variable state, etc.
      */
