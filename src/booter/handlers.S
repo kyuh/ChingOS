@@ -29,3 +29,22 @@
 #
 #                popa    # Restore all registers
 #                iret    # Go back to interrupted code
+
+.align 4
+.globl clearScreen
+
+clearScreen:
+	pusha               # pushes all of the registers onto the stack.
+	cli                 # disables interrupts
+	movl $0xB8000, %edi # Move the beginning of the video buffer into edi.
+	movw $2000, %cx     # Initialize the count register to the number of pixels.
+	# Store the character attribute in the high bit...
+	movb $14, %ah       # White text with a black background.
+	# and a blank character (a space) in the low bit.
+	movb $' ', %al
+	# Repeat for every pixel.
+	rep stosw           # We use stosw because we want to copy %ax.
+	popa                # Restores the registers.
+	ret
+
+

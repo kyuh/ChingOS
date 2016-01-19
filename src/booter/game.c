@@ -11,20 +11,23 @@ void c_start(void) {
      *        do whatever else you decide to do!
      */
 
-     // PUT ALL INIT STUFF HERE
+    // PUT ALL INIT STUFF HERE
+    // TEST~nico~~
+    init_video();
 
-     // Enables interrupts after we disbled them in the bootloader. Remember to
-     // disable interrupts when writing an assembly handler.
-     enable_interrupts();
+    // Enables interrupts after we disbled them in the bootloader. Remember to
+    // disable interrupts when writing an assembly handler.
+    enable_interrupts();
 
-     // TEST~nico~~
-     init_video();
+     
 
      // vvv GAME STUFF GOES HERE
 
 
 
     /* Loop forever, so that we don't fall back into the bootloader code. */
-    while (1) {}
+    while (1) {
+    	
+    }
 }
 

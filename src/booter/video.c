@@ -1,4 +1,5 @@
 #include "video.h"
+#include "handlers.h"
 
 /* This is the address of the VGA text-mode video buffer.  Note that this
  * buffer actually holds 8 pages of text, but only the first page (page 0)
@@ -40,6 +41,8 @@ void init_video(void) {
     /* TODO:  Do any video display initialization you might want to do, such
      *        as clearing the screen, initializing static variable state, etc.
      */
+     // Clear Screen - not yet debugged.
+     clearScreen();
 
      //TEST~nico~~
      write_string(RED, string);
