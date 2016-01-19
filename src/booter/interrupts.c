@@ -192,9 +192,10 @@ void init_interrupts(void) {
      */
     PIC_remap(0x20, 0x27);
 
+    //TODO unmask stuff / mask only what you neeed
     for(int i = 0; i < 16; i++)
     {
-        IRQ_set_mask(i);
+        //IRQ_set_mask(i);
     }
 }
 

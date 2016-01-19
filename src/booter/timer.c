@@ -1,6 +1,9 @@
 #include "timer.h"
 #include "ports.h"
 
+#include "handlers.h"
+#include "interrupts.h"
+
 /*============================================================================
  * PROGRAMMABLE INTERVAL TIMER
  *
@@ -14,6 +17,7 @@
  * you put in 150 then you will get a 7954.5 Hz output.  So, it is clearly an
  * approximate mechanism.
  *
+ * TODO: !!! IRQ0?
  * Channel 0 is hooked up to IRQ1 on the Programmable Interrupt Controller
  * (PIC), so we can generate timer interrupts on various intervals.
  *
@@ -63,7 +67,11 @@ void init_timer(void) {
 
     /* TODO:  Initialize other timer state here. */
 
-    /* TODO:  You might want to install your timer interrupt handler
-     *        here as well.
-     */
+    install_interrupt_handler(TIMER_INTERRUPT, irq_timer_handler);
+}
+
+int ticks;
+void timer_handler()
+{
+    ticks++;
 }

@@ -8,5 +8,6 @@
 #define HANDLERS_H
 
 void clearScreen(void);
+void irq_timer_handler(void);
 
 #endif // HANDLERS_H
