@@ -24,6 +24,6 @@
 
 
 void init_video(void);
-void write_string(int, char*);
+void write_string(unsigned char, char*);
 
 #endif /* VIDEO_H */
