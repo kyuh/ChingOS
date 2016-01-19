@@ -1,5 +1,6 @@
 #include "video.h"
 #include "handlers.h"
+#include "boot.h"
 
 /* This is the address of the VGA text-mode video buffer.  Note that this
  * buffer actually holds 8 pages of text, but only the first page (page 0)
@@ -19,13 +20,26 @@
  * more about this topic, go to http://wiki.osdev.org/Main_Page and look at
  * the VGA links in the "Video" section.
  */
-#define VIDEO_BUFFER ((void *) 0xB8000)
+#define VIDEO_BUFFER ((char *) 0xA0000)
 
+#define X_RES 320
+#define Y_RES 200
 
 /* TODO:  You can create static variables here to hold video display state,
  *        such as the current foreground and background color, a cursor
  *        position, or any other details you might want to keep track of!
  */
+
+void color_screen(unsigned char color)
+{
+    char * datas = ((char*) PROGRAM_BASE_ADDR);
+    datas += 100000;
+    datas -= 512;
+    for(int i = 0; i < X_RES * Y_RES; i++)
+    {
+        VIDEO_BUFFER[i] = datas[i];
+    }
+}
 
 char string[] = "Nico Nico Ni";
 char empty[] = " ";
@@ -54,6 +68,7 @@ void color_pixel(unsigned char color, unsigned short offset) {
 }
 
 void init_video(void) {
+    color_screen(0x3f);
     /* TODO:  Do any video display initialization you might want to do, such
      *        as clearing the screen, initializing static variable state, etc.
      */

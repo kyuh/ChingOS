@@ -4,3 +4,6 @@ floppy.img
 prog.lds.s
 *.o
 
+
+temp.img
+datas.bin
