@@ -4,7 +4,8 @@
 
 void init_timer(void);
 void sleep_until(int);
-int ticks;
+
+extern int ticks;
 
 #endif /* TIMER_H */
 
