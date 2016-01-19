@@ -86,6 +86,36 @@ void draw_player(int x, int y)
     }
 }
 
+void draw_enemy(int type, int x, int y)
+{
+	char *video = (char*) VIDEO_BUFFER;
+    //player is offset 48 px on sprite sheet
+    //sprite sheet is 128 px wide
+
+    char *enemy_start = &(assets->girls[0]);
+    
+    //now offset it for the different idle animation
+    int frame = (ticks >> 5) % 8;
+
+    enemy_start += ENEMY_DIM * frame;
+
+    for(int xi = 0; xi < ENEMY_DIM; xi++)
+    {
+        for(int yi = 0; yi < ENEMY_DIM; yi++)
+        {
+            int xpos = x + xi;
+            int ypos = y + yi;
+            //bounds check and transparency check
+            if(xpos > 0 && xpos < X_RES &&
+               ypos > 0 && ypos < Y_RES &&
+               enemy_start[xi + yi * 128])
+            {
+                video[xpos + X_RES * ypos] = enemy_start[xi + 128 * yi];
+            }
+        }
+    }
+}
+
 #define BULLET_WIDTH 8
 #define BULLET_HEIGHT 8
 
