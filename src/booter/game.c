@@ -17,17 +17,17 @@ void c_start(void) {
 
     // Enables interrupts after we disbled them in the bootloader. Remember to
     // disable interrupts when writing an assembly handler.
-    enable_interrupts();
+    //enable_interrupts();
 
      
 
      // vvv GAME STUFF GOES HERE
 
-
+int x;
 
     /* Loop forever, so that we don't fall back into the bootloader code. */
     while (1) {
-    	
+    	x++;
     }
 }
 

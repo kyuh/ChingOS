@@ -41,10 +41,10 @@ void init_video(void) {
     /* TODO:  Do any video display initialization you might want to do, such
      *        as clearing the screen, initializing static variable state, etc.
      */
-     // Clear Screen - not yet debugged.
-     clearScreen();
+    // Clear Screen - not yet debugged.
+    // clearScreen();
 
-     //TEST~nico~~
-     write_string(RED, string);
+    //TEST~nico~~
+    write_string(RED, string);
 }
 
