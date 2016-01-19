@@ -26,10 +26,22 @@
  *        position, or any other details you might want to keep track of!
  */
 
+char string[] = "Nico Nico Ni";
+
+void write_string(int color, char* string) {
+	volatile char *video = (volatile char*) VIDEO_BUFFER;
+	while(*string != 0) {
+		*video++ = *string++;
+		*video++ = color;
+	}
+}
 
 void init_video(void) {
     /* TODO:  Do any video display initialization you might want to do, such
      *        as clearing the screen, initializing static variable state, etc.
      */
+
+     //TEST~nico~~
+     write_string(RED, string);
 }
 
