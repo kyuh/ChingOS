@@ -33,6 +33,9 @@
 .align 4
 .globl clearScreen
 
+# Stores the width of our screen
+
+
 clearScreen:
 	pusha               # pushes all of the registers onto the stack.
 	cli                 # disables interrupts
