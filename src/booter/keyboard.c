@@ -45,3 +45,8 @@ void init_keyboard(void) {
      */
 }
 
+
+void keyboard_handler(void)
+{
+
+}

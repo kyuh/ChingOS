@@ -75,3 +75,11 @@ void timer_handler()
 {
     ticks++;
 }
+
+void sleep_until(int target)
+{
+    while(target > ticks)
+    {
+        asm("hlt");
+    }
+}

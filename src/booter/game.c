@@ -1,6 +1,8 @@
 
 #include "video.h"
 #include "interrupts.h"
+#include "timer.h"
+#include "handlers.h"
 
 /* This is the entry-point for the game! */
 void c_start(void) {
@@ -14,19 +16,24 @@ void c_start(void) {
     // PUT ALL INIT STUFF HERE
     // TEST~nico~~
     init_video();
+    init_interrupts();
+    init_timer();
+    //for(int i = 0; i < 25; i++)
+    //{
+    //    install_interrupt_handler(i, irq_timer_handler);
+    //}
 
     // Enables interrupts after we disbled them in the bootloader. Remember to
     // disable interrupts when writing an assembly handler.
-    //enable_interrupts();
-
-     
+    enable_interrupts();
 
      // vvv GAME STUFF GOES HERE
 
-int x;
+    int x;
 
     /* Loop forever, so that we don't fall back into the bootloader code. */
     while (1) {
+        sleep_until(ticks + 100);
     	x++;
     }
 }
