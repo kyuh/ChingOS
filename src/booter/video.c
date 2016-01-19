@@ -2,7 +2,7 @@
 #include "handlers.h"
 #include "boot.h"
 #include "assets.h"
-//#include "strings.h"
+#include "strings.h"
 
 /* This is the address of the VGA text-mode video buffer.  Note that this
  * buffer actually holds 8 pages of text, but only the first page (page 0)
@@ -83,7 +83,7 @@ void write_string_position(unsigned char color, char* string, int x, int y)
     
     while(*string != 0)
     {
-        char char_code = *string;
+        unsigned char char_code = *string;
         //get the row and column of the string
         //there are 16 chars per row
         //and lots of rows
@@ -126,8 +126,10 @@ void init_video(void) {
 
     assets = (Game_Assets*)datas;
 
-    color_screen(0x3f);
-    write_string_position(5, "wowowow", 315, 5);
+    //color_screen(0x3f);
+    write_string_position(5, "wowowow", 5, 5);
+    write_string_position(5, hu, 5, 15);
+    write_string_position(5, katana, 5, 25);
     /* TODO:  Do any video display initialization you might want to do, such
      *        as clearing the screen, initializing static variable state, etc.
      */
