@@ -1,6 +1,7 @@
 #include "video.h"
 #include "handlers.h"
 #include "boot.h"
+#include "assets.h"
 
 /* This is the address of the VGA text-mode video buffer.  Note that this
  * buffer actually holds 8 pages of text, but only the first page (page 0)
@@ -35,9 +36,13 @@ void color_screen(unsigned char color)
     char * datas = ((char*) PROGRAM_BASE_ADDR);
     datas += 100000;
     datas -= 512;
+
+    Game_Assets * assets = (Game_Assets*)datas;
+
+    char* image = &(assets->screen[0]);
     for(int i = 0; i < X_RES * Y_RES; i++)
     {
-        VIDEO_BUFFER[i] = datas[i];
+        VIDEO_BUFFER[i] = image[i];
     }
 }
 
