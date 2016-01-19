@@ -28,13 +28,21 @@
  */
 
 char string[] = "Nico Nico Ni";
+char empty[] = " ";
 
-void write_string(int color, char* string) {
-	volatile char *video = (volatile char*) VIDEO_BUFFER;
+void write_string(unsigned char color, char* string, int offset) {
+	volatile char *video = (volatile char*) VIDEO_BUFFER + offset;
 	while(*string != 0) {
 		*video++ = *string++;
 		*video++ = color;
 	}
+}
+
+void color_pixel(unsigned char color, unsigned short offset) {
+	volatile char *video = (volatile char*) VIDEO_BUFFER + offset;
+	*video++ = 219;
+	*video++ = color;
+	// (unsigned char *) VIDEO_BUFFER[offset] = color;
 }
 
 void init_video(void) {
@@ -45,6 +53,15 @@ void init_video(void) {
     // clearScreen();
 
     //TEST~nico~~
-    write_string(RED, string);
+    write_string(RED, string, 10);
+
+    // TEST 2~~nico~~~~
+    color_pixel(RED, 50);
+    color_pixel(BLUE, 52);
+    color_pixel(YELLOW, 54);
+    color_pixel(WHITE, 210);
+    color_pixel(GREEN, 212);
+    color_pixel(CYAN, 214);
+
 }
 
