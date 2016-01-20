@@ -7,11 +7,6 @@
 
 
 
-char space[100000];
-
-
-typedef char* ST_ARR_TYPE;
-
 
 /* Wrapper for all game types,
 used so that we can have a common vector type */
@@ -30,68 +25,109 @@ typedef struct {
 } Enemy;
 
 
+typedef struct {
+    float pos_x;
+    float pos_y;
+} Player;
+
+
 typedef union {
-    Bullet b;
-    Enemy e;
+    Bullet bullet;
+    Enemy enemy;
     int val;
-} GameUnionType;
+} GameUnion;
 
 // Sized array of char arrays
 typedef struct {
-    GameUnionType *data;
+    GameUnion *data;
     int size;
     int capacity;
 } GameArray;
 
-#if 0
-
-StringArray createStringArray(int starting_cap){
-    StringArray stArr;
-    stArr.data = malloc(starting_cap * sizeof(ST_ARR_TYPE));
-    stArr.size = 0;
-    stArr.capacity = starting_cap;
-    return stArr;
+GameArray createGameArray(int cap, char *memory_start_pos){
+    GameArray gArr;
+    gArr.data = (GameUnion*)memory_start_pos;
+    gArr.size = 0;
+    gArr.capacity = cap;
+    return gArr;
 }
 
-void stringArrayDeleteLast(StringArray *stArr){
-    stArr->data[ stArr->size ] = NULL;      // optional
-    stArr->size -= 1;
+void GameArrayDeleteLast(GameArray *gArr){
+    gArr->size -= 1;
 }
 
-void stringArrayResize(StringArray *stArr){
-    ST_ARR_TYPE *new_buffer = malloc(2 * stArr->capacity * sizeof(ST_ARR_TYPE));
-    memcpy(new_buffer, stArr->data, stArr->capacity * sizeof(ST_ARR_TYPE));
-
-    free(stArr->data);
-    stArr->data = new_buffer;
-    stArr->capacity *= 2;
-}
-
-void stringArrayInsert(StringArray *stArr, ST_ARR_TYPE elt){
-    if (stArr->size == stArr->capacity){
-        stringArrayResize(stArr);
+// Return if successfully inserted
+int GameArrayInsert(GameArray *gArr, GameUnion elt){
+    if (gArr->size == gArr->capacity){
+        return 0;
     }
-    stArr->data[stArr->size] = elt;
-    stArr->size += 1;
+    gArr->data[gArr->size] = elt;
+    gArr->size += 1;
+    return 1;
 }
 
-ST_ARR_TYPE stringArrayGet(StringArray *stArr, size_t idx){
-    return stArr->data[idx];
+GameUnion GameArrayGet(GameArray *gArr, unsigned int idx){
+    return gArr->data[idx];
 }
 
-char **stringArrayToNormalPlusNull(StringArray *stArr){
-    int n = stArr->size;
-    char **arr = malloc((n+1) * sizeof(char*));
-    for (int i = 0; i < n; i++){
-        arr[i] = stringArrayGet(stArr, i);
+int getPixelOffset(int x, int y){
+    return y * X_RES + x;
+}
+
+
+
+// Entity storage
+Player player;
+GameArray enemy_arr;
+GameArray player_bullet_arr;
+GameArray enemy_bullet_arr;
+
+// Buffer space for above arrays
+char space[200000];
+
+// Capacities
+#define MAX_ENEMIES 10
+#define MAX_PLAYER_BULLETS 1000
+#define MAX_ENEMY_BULLETS 1000
+
+#define ENEMY_ARR_OFFSET 0
+#define PLAYER_BULLET_ARR_OFFSET 10000
+#define ENEMY_BULLET_ARR_OFFSET 100000
+
+// Positions and other data
+#define NUM_ENEMIES 1
+#define PLAYER_START_POS_X 160
+#define PLAYER_START_POS_Y 150
+
+
+void init_entities() {
+    // Init player
+    player.pos_x = PLAYER_START_POS_X;
+    player.pos_y = PLAYER_START_POS_Y;
+
+    // Init enemies
+    enemy_arr = createGameArray(MAX_ENEMIES, space + ENEMY_ARR_OFFSET);
+
+    Enemy test_enemy;
+    test_enemy.pos_x = 160;
+    test_enemy.pos_y = 50;
+
+    GameUnion enemy_gu;
+    enemy_gu.enemy = test_enemy;
+    GameArrayInsert(&enemy_arr, enemy_gu);
+}
+
+
+// Tentative drawing function
+void draw_enemies(){
+    int i;
+    for (i = 0; i < enemy_arr.size; i++){
+        GameUnion enemy_gu = GameArrayGet(&enemy_arr, i);
+        int pos_x = (int) enemy_gu.enemy.pos_x;
+        int pos_y = (int) enemy_gu.enemy.pos_y;
+        color_pixel(LIGHT_CYAN, getPixelOffset(pos_x, pos_y));
     }
-    arr[n] = NULL;
-    return arr;
 }
-
-#endif
-
-
 
 
 
@@ -126,6 +162,9 @@ void c_start(void) {
     volatile float b = 3.22;
     volatile float c = a + b;
     #endif
+
+    init_entities();
+    draw_enemies();
 
     color_pixel(LIGHT_CYAN, 5 * X_RES + 10);
 
