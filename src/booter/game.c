@@ -247,8 +247,50 @@ void update_bullet_positions(GameArray *bullet_arr){
 }
 
 
-void update_player_bullets(){
+void update_player_bullets() {
     update_bullet_positions(&player_bullet_arr);
+}
+
+void update_enemy_bullets() {
+    update_bullet_positions(&enemy_bullet_arr);
+}
+
+// See the Wikipedia article on
+// linear congruential generators
+unsigned int prev_internal_val;
+unsigned int a = 1664525;
+unsigned int c = 1013904223;
+unsigned int gen_rand(int range) {
+    prev_internal_val = a * prev_internal_val + c;
+    return (prev_internal_val % range);
+}
+
+
+#define INVERSE_BULLET_CHANCE 5
+
+void add_enemy_bullets(){
+    int i;
+    for (i = 0; i < enemy_arr.size; i++){
+
+        GameUnion gu_cur_enemy = GameArrayGet(&enemy_arr, i);
+
+        // Don't add at all ticks - randomly select
+        unsigned int testval = gen_rand(INVERSE_BULLET_CHANCE);
+        if (!testval){
+            Bullet b;
+            b.pos_x = gu_cur_enemy.enemy.pos_x;
+            b.pos_y = gu_cur_enemy.enemy.pos_y;
+
+            // boring velocity for now
+            b.vel_x = 0;
+            b.vel_y = 2;
+
+            GameUnion gu_cur_bullet;
+            gu_cur_bullet.bullet = b;
+
+            GameArrayInsert(&enemy_bullet_arr, gu_cur_bullet);
+        }
+    }
 }
 
 
@@ -312,12 +354,16 @@ void c_start(void) {
 
         update_player_bullets();
 
+        add_enemy_bullets();
+
+        update_enemy_bullets();
+
         draw_entities();
 
         
         // 2 ticks per game loop
         // so approximately 30fps
-        sleep_until(currentTime + 20);
+        sleep_until(currentTime + 3);
     }
 }
 
