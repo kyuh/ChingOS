@@ -24,8 +24,6 @@
  */
 #define VIDEO_BUFFER ((char *) 0xA0000)
 
-#define X_RES 320
-#define Y_RES 200
 
 /* TODO:  You can create static variables here to hold video display state,
  *        such as the current foreground and background color, a cursor
