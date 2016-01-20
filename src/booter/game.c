@@ -83,7 +83,7 @@ GameArray player_bullet_arr;
 GameArray enemy_bullet_arr;
 
 // Buffer space for above arrays
-char space[200000];
+char *space = 0x100000;
 
 // Capacities
 #define MAX_ENEMIES 10
