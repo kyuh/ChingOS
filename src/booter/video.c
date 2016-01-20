@@ -136,6 +136,7 @@ void init_video(void) {
     // Clear Screen - not yet debugged.
     // clearScreen();
 
+    #if 0
     //TEST~nico~~
     write_string_offset(RED, string, 10);
 
@@ -146,6 +147,7 @@ void init_video(void) {
     color_pixel(WHITE, 210);
     color_pixel(GREEN, 212);
     color_pixel(CYAN, 214);
+    #endif
 
 }
 
