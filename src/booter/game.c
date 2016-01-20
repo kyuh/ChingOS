@@ -87,17 +87,21 @@ GameArray enemy_arr;
 GameArray player_bullet_arr;
 GameArray enemy_bullet_arr;
 
+GameArray temp_arr;
+
 // Buffer space for above arrays
 char *space = 0x100000;
 
 // Capacities
 #define MAX_ENEMIES 10
-#define MAX_PLAYER_BULLETS 1000
+#define MAX_PLAYER_BULLETS 500
 #define MAX_ENEMY_BULLETS 1000
+#define MAX_TEMP 1000
 
 #define ENEMY_ARR_OFFSET 0
 #define PLAYER_BULLET_ARR_OFFSET 10000
 #define ENEMY_BULLET_ARR_OFFSET 100000
+#define TEMP_ARR_OFFSET 200000
 
 // Positions and other data
 #define NUM_ENEMIES 1
@@ -183,7 +187,7 @@ void handle_keyboard(){
         b.pos_x = 160;
         b.pos_y = 170;
         b.vel_x = 0;
-        b.vel_y = 2;
+        b.vel_y = -2;
 
         GameUnion b_gu;
         b_gu.bullet = b;
@@ -218,13 +222,28 @@ int bound_check_y(float y){
 
 
 void update_bullet_positions(GameArray *bullet_arr){
+
+    // Init temporary storage space for filtered bullets
+    //temp_arr = createGameArray(MAX_TEMP, space + TEMP_ARR_OFFSET);
+
+    // We'll basically overwrite any bullet that needs
+    // to be removed
+    int offset = 0;
+
     int i;
     for (int i = 0; i < bullet_arr->size; i++){
         GameUnion b_gu = GameArrayGet(bullet_arr, i);
         b_gu.bullet.pos_x += b_gu.bullet.vel_x;
         b_gu.bullet.pos_y += b_gu.bullet.vel_y;
-        GameArraySet(bullet_arr, i, b_gu);
+
+        if (!bound_check_x(b_gu.bullet.pos_x) || !bound_check_y(b_gu.bullet.pos_y)){
+            offset++;
+        } else {
+            GameArraySet(bullet_arr, i - offset, b_gu);
+        }
     }
+
+    bullet_arr->size -= offset;
 }
 
 
