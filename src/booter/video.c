@@ -232,7 +232,6 @@ void init_video(void) {
     // Clear Screen - not yet debugged.
     // clearScreen();
 
-<<<<<<< HEAD
     #if 0
     //TEST~nico~~
     #if 0
@@ -248,7 +247,5 @@ void init_video(void) {
     color_pixel(CYAN, 214);
     #endif
 
-=======
->>>>>>> 4b9e93699e7656b05f9e00c40e690c209d061461
 }
 

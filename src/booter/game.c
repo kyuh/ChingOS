@@ -146,14 +146,14 @@ void draw_entities(){
     color_screen(BLACK);
 
     // Draw player
-    color_pixel(LIGHT_GREEN, getPixelOffset(player.pos_x, player.pos_y));
+    draw_player(player.pos_x, player.pos_y);
 
     // Draw enemies
     for (i = 0; i < enemy_arr.size; i++){
         GameUnion enemy_gu = GameArrayGet(&enemy_arr, i);
         int pos_x = (int) enemy_gu.enemy.pos_x;
         int pos_y = (int) enemy_gu.enemy.pos_y;
-        color_pixel(LIGHT_CYAN, getPixelOffset(pos_x, pos_y));
+        draw_enemy(0, pos_x, pos_y);
     }
 
     // Draw player bullets
@@ -161,7 +161,7 @@ void draw_entities(){
         GameUnion player_bullet_gu = GameArrayGet(&player_bullet_arr, i);
         int pos_x = (int) player_bullet_gu.bullet.pos_x;
         int pos_y = (int) player_bullet_gu.bullet.pos_y;
-        color_pixel(WHITE, getPixelOffset(pos_x, pos_y));
+        draw_bullet(WHITE, 0, pos_x, pos_y);
     }
 
     // Draw enemy bullets
@@ -169,7 +169,7 @@ void draw_entities(){
         GameUnion enemy_bullet_gu = GameArrayGet(&enemy_bullet_arr, i);
         int pos_x = (int) enemy_bullet_gu.bullet.pos_x;
         int pos_y = (int) enemy_bullet_gu.bullet.pos_y;
-        color_pixel(LIGHT_RED, getPixelOffset(pos_x, pos_y));
+        draw_bullet(WHITE, 0, pos_x, pos_y);
     }
 }
 
@@ -313,7 +313,7 @@ void c_start(void) {
         
         // 2 ticks per game loop
         // so approximately 30fps
-        sleep_until(currentTime + 3);
+        sleep_until(currentTime + 20);
     }
 }
 

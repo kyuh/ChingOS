@@ -31,4 +31,10 @@ void write_string(unsigned char, char*);
 
 void color_screen(unsigned char color);
 
+void draw_player(int x, int y);
+
+void draw_enemy(int type, int x, int y);
+
+void draw_bullet(int color, int type, int x, int y);
+
 #endif /* VIDEO_H */
