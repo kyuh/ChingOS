@@ -23,7 +23,12 @@
  * more about this topic, go to http://wiki.osdev.org/Main_Page and look at
  * the VGA links in the "Video" section.
  */
-#define VIDEO_BUFFER ((char *) 0xA0000)
+#define VGA_BUFFER ((char *) 0xA0000)
+// we need to single buffer our video or else
+// we'll get flickering on slower devices
+// this is a nonissue with h/w virt (like on vbox), but for software qemu
+// this will help
+#define VIDEO_BUFFER ((char *) 0xA00000)
 
 
 /* TODO:  You can create static variables here to hold video display state,
@@ -33,13 +38,30 @@
 
 Game_Assets *assets;
 
+//copies temporary screen buffer to vga screen buffer
+void update_screen()
+{
+    for(int i = 0; i < X_RES * Y_RES; i++)
+    {
+        VGA_BUFFER[i] = VIDEO_BUFFER[i];
+    }
+}
 
 void color_screen(unsigned char color)
+{
+    for(int i = 0; i < X_RES * Y_RES; i++)
+    {
+        VIDEO_BUFFER[i] = color;
+    }
+}
+
+
+void draw_bg_screen()
 {
     char* image = &(assets->screen[0]);
     for(int i = 0; i < X_RES * Y_RES; i++)
     {
-        VIDEO_BUFFER[i] = color;
+        VIDEO_BUFFER[i] = image[i];
     }
 }
 
@@ -258,6 +280,5 @@ void init_video(void) {
     color_pixel(GREEN, 212);
     color_pixel(CYAN, 214);
     #endif
-
 }
 

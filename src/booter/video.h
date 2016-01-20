@@ -30,6 +30,8 @@ void init_video(void);
 void write_string(unsigned char, char*);
 
 void color_screen(unsigned char color);
+void update_screen();
+void draw_bg_screen();
 
 void draw_player(int x, int y);
 

@@ -90,7 +90,7 @@ GameArray enemy_bullet_arr;
 GameArray temp_arr;
 
 // Buffer space for above arrays
-char *space = 0x100000;
+char *space = (char *)0x100000;
 
 // Capacities
 #define MAX_ENEMIES 10
@@ -410,9 +410,6 @@ void c_start(void) {
 
     draw_entities();
 
-    // TEST
-    color_pixel(LIGHT_CYAN, 5 * X_RES + 10);
-
     /* Loop forever, so that we don't fall back into the bootloader code. */
     while (1) {
         int currentTime = ticks;
@@ -427,10 +424,17 @@ void c_start(void) {
 
         draw_entities();
 
-        
+        //update the screen
+        update_screen();
+
         // 2 ticks per game loop
         // so approximately 30fps
-        sleep_until(currentTime + 3);
+        if(!sleep_until(currentTime + 3))
+        {
+            write_string(3, "you're lagging go faster");
+            //this will make you lag even more but whatev
+            update_screen();
+        }
     }
 }
 
