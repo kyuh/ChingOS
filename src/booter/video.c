@@ -79,8 +79,8 @@ char empty[] = " ";
 void draw_player(int x, int y)
 {
     //offset it because we want to draw centered
-    x -= PLAYER_WIDTH;
-    y -= PLAYER_HEIGHT;
+    x -= PLAYER_WIDTH / 2;
+    y -= PLAYER_HEIGHT / 2;
 
 	char *video = (char*) VIDEO_BUFFER;
     //player is offset 48 px on sprite sheet
@@ -113,8 +113,8 @@ void draw_player(int x, int y)
 void draw_enemy(int type, int x, int y)
 {
     //offset it because we want to draw centered
-    x -= ENEMY_DIM;
-    y -= ENEMY_DIM;
+    x -= ENEMY_DIM / 2;
+    y -= ENEMY_DIM / 2;
 
 	char *video = (char*) VIDEO_BUFFER;
     //player is offset 48 px on sprite sheet
@@ -151,8 +151,8 @@ void draw_enemy(int type, int x, int y)
 void draw_bullet(int color, int type, int x, int y)
 {
     //offset it because we want to draw centered
-    x -= BULLET_WIDTH;
-    y -= BULLET_HEIGHT;
+    x -= BULLET_WIDTH / 2;
+    y -= BULLET_HEIGHT / 2;
 
     //we are willing to draw bullets partially clipping off the screen
 	char *video = (char*) VIDEO_BUFFER;

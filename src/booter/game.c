@@ -161,7 +161,7 @@ void draw_entities(){
         GameUnion player_bullet_gu = GameArrayGet(&player_bullet_arr, i);
         int pos_x = (int) player_bullet_gu.bullet.pos_x;
         int pos_y = (int) player_bullet_gu.bullet.pos_y;
-        draw_bullet(WHITE, 0, pos_x, pos_y);
+        draw_bullet(1, 6, pos_x, pos_y);
     }
 
     // Draw enemy bullets
@@ -181,17 +181,17 @@ void draw_entities(){
 #define KEY_SPACE (0x39)
 
 
-#define BULLET_WAIT 30
+#define BULLET_WAIT 3
 int last_bullet_tick = -1;
 
 void handle_keyboard(){
     if (keys_pressed[KEY_SPACE] && (last_bullet_tick + BULLET_WAIT < ticks)){
         // player shoots bullet
         Bullet b;
-        b.pos_x = 160;
-        b.pos_y = 170;
+        b.pos_x = player.pos_x;
+        b.pos_y = player.pos_y - 5;
         b.vel_x = 0;
-        b.vel_y = -2;
+        b.vel_y = -6;
 
         GameUnion b_gu;
         b_gu.bullet = b;
@@ -349,6 +349,9 @@ void add_enemy_bullets(){
             b.pos_y = gu_cur_enemy.enemy.pos_y;
 
             // boring velocity for now
+            // find the direction of the player
+            int dir_x = player.pos_x - b.pos_x;
+            int dir_y = player.pos_y - b.pos_y;
             b.vel_x = 0;
             b.vel_y = 2;
 
