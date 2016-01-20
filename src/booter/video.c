@@ -58,6 +58,10 @@ char empty[] = " ";
 
 void draw_player(int x, int y)
 {
+    //offset it because we want to draw centered
+    x -= PLAYER_WIDTH;
+    y -= PLAYER_HEIGHT;
+
 	char *video = (char*) VIDEO_BUFFER;
     //player is offset 48 px on sprite sheet
     //sprite sheet is 128 px wide
@@ -88,6 +92,10 @@ void draw_player(int x, int y)
 
 void draw_enemy(int type, int x, int y)
 {
+    //offset it because we want to draw centered
+    x -= ENEMY_DIM;
+    y -= ENEMY_DIM;
+
 	char *video = (char*) VIDEO_BUFFER;
     //player is offset 48 px on sprite sheet
     //sprite sheet is 128 px wide
@@ -122,6 +130,10 @@ void draw_enemy(int type, int x, int y)
 // color is NOT a vga, color, it's from 1-16 in the bullet strip
 void draw_bullet(int color, int type, int x, int y)
 {
+    //offset it because we want to draw centered
+    x -= BULLET_WIDTH;
+    y -= BULLET_HEIGHT;
+
     //we are willing to draw bullets partially clipping off the screen
 	char *video = (char*) VIDEO_BUFFER;
 
@@ -224,10 +236,10 @@ void init_video(void) {
     write_string_position(5, hu, 5, 15);
     write_string_position(5, katana, 5, 25);
 
-    draw_bullet(6, 11, 5, 5);
-    draw_player(5, 35);
-    draw_enemy(0, 5, 55);
-    draw_enemy(1, 5, 70);
+    draw_bullet(6, 11, 15, 5);
+    draw_player(15, 35);
+    draw_enemy(0, 15, 55);
+    draw_enemy(1, 15, 70);
     /* TODO:  Do any video display initialization you might want to do, such
      *        as clearing the screen, initializing static variable state, etc.
      */
