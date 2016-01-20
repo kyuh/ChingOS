@@ -50,9 +50,6 @@ char empty[] = " ";
 ////////////////
 // code to draw sprites
 
-#define ENEMY_DIM 16
-#define PLAYER_HEIGHT 24
-#define PLAYER_WIDTH 16
 
 void draw_player(int x, int y)
 {
@@ -113,9 +110,6 @@ void draw_enemy(int type, int x, int y)
         }
     }
 }
-
-#define BULLET_WIDTH 8
-#define BULLET_HEIGHT 8
 
 // color is NOT a vga, color, it's from 1-16 in the bullet strip
 void draw_bullet(int color, int type, int x, int y)
