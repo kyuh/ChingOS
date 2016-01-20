@@ -47,8 +47,10 @@ $(PROGRAM_OBJ): prog.lds.s $(OBJS)
 $(PROGRAM_BIN): $(PROGRAM_OBJ)
 	objcopy -R .note -R .comment -S $< $@
 
-$(FLOPPY_IMG): $(BOOT_BIN) $(PROGRAM_BIN)
-	cat $(BOOT_BIN) $(PROGRAM_BIN) > $@
+$(FLOPPY_IMG): $(BOOT_BIN) $(PROGRAM_BIN) datas.bin
+	cat $(BOOT_BIN) $(PROGRAM_BIN) > temp.img
+	truncate -s 100000 temp.img # 100000 for program and booter
+	cat temp.img datas.bin > $@ # slap on the data
 	truncate -s 1474560 $@
 
 run-qemu: $(FLOPPY_IMG)
@@ -56,6 +58,13 @@ run-qemu: $(FLOPPY_IMG)
 
 debug-qemu: $(FLOPPY_IMG)
 	qemu-system-i386 -soundhw pcspk -s -S $(FLOPPY_IMG)
+
+bochs.img: $(FLOPPY_IMG)
+	cp $(FLOPPY_IMG) bochs.img
+	truncate -s 10653696 bochs.img
+
+run-bochs: bochs.img
+	bochs
 
 clean:
 	rm -f *.o prog.lds.s $(BOOT_BIN) $(PROGRAM_BIN) $(FLOPPY_IMG)
