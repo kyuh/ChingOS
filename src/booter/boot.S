@@ -81,10 +81,14 @@ read_loop:
 
     # code 42h for extended read
     movb $0x42, %ah
+
     # 1st hdd
     # yeah man this is an HDD, even though it says floppy.img
     # maybe you should have called it hdd.img
-    movb $0x80, %dl
+
+    # so according to the docs, the BIOS gives us the boot device
+    # in dl already automatically.  We do this so we can boot from more things
+    # movb $0x80, %dl
 
     # our ds is already where it should be
     # now just set the si to 0
