@@ -221,8 +221,73 @@ int bound_check_y(float y){
 }
 
 
-void update_bullet_positions(GameArray *bullet_arr){
+float kabs(float x){
+    if (x >= 0){
+        return x;
+    } else {
+        return -x;
+    }
+}
 
+int pb_enemy_intersect(Bullet b, Enemy e){
+    return (kabs(b.pos_y - e.pos_y) < 10);
+}
+
+int eb_player_intersect(Bullet b, Player p){
+    //return (kabs(b.pos_x - p.pos_x) < 10);
+    return 0;
+}
+
+
+void update_player_bullets() {
+ 
+    // Init temporary storage space for filtered bullets
+    //temp_arr = createGameArray(MAX_TEMP, space + TEMP_ARR_OFFSET);
+
+    // We'll basically overwrite any bullet that needs
+    // to be removed
+    int pb_offset = 0;
+
+    int i;
+    for (int i = 0; i < player_bullet_arr.size; i++){
+        GameUnion b_gu = GameArrayGet(&player_bullet_arr, i);
+        b_gu.bullet.pos_x += b_gu.bullet.vel_x;
+        b_gu.bullet.pos_y += b_gu.bullet.vel_y;
+
+        if (!bound_check_x(b_gu.bullet.pos_x) || !bound_check_y(b_gu.bullet.pos_y)){
+            pb_offset++;
+        } else {
+
+            int enemy_offset = 0;
+            int an_enemy_hit = 0;
+            for (int j = 0; j < enemy_arr.size; j++){
+                GameUnion e_gu = GameArrayGet(&enemy_arr, j);
+
+                if (pb_enemy_intersect(b_gu.bullet, e_gu.enemy)){
+                    enemy_offset++;
+                    an_enemy_hit = 1;
+                } else {
+                    GameArraySet(&enemy_arr, i - enemy_offset, e_gu);
+                }
+            }
+
+            enemy_arr.size -= enemy_offset;
+
+            if (an_enemy_hit) {
+                pb_offset++;
+            } else {
+                GameArraySet(&player_bullet_arr, i - pb_offset, b_gu);   
+            }
+        }
+
+
+    }
+
+    player_bullet_arr.size -= pb_offset;
+}
+
+// A bit of ugly repeated code
+void update_enemy_bullets() {
     // Init temporary storage space for filtered bullets
     //temp_arr = createGameArray(MAX_TEMP, space + TEMP_ARR_OFFSET);
 
@@ -231,28 +296,24 @@ void update_bullet_positions(GameArray *bullet_arr){
     int offset = 0;
 
     int i;
-    for (int i = 0; i < bullet_arr->size; i++){
-        GameUnion b_gu = GameArrayGet(bullet_arr, i);
+    for (int i = 0; i < enemy_bullet_arr.size; i++){
+        GameUnion b_gu = GameArrayGet(&enemy_bullet_arr, i);
         b_gu.bullet.pos_x += b_gu.bullet.vel_x;
         b_gu.bullet.pos_y += b_gu.bullet.vel_y;
 
         if (!bound_check_x(b_gu.bullet.pos_x) || !bound_check_y(b_gu.bullet.pos_y)){
             offset++;
+        } else if (eb_player_intersect(b_gu.bullet, player)){
+            color_screen(BLACK);
+            // For now, just loop, game over
+            while(1){}
         } else {
-            GameArraySet(bullet_arr, i - offset, b_gu);
+            GameArraySet(&enemy_bullet_arr, i - offset, b_gu);
         }
+
     }
 
-    bullet_arr->size -= offset;
-}
-
-
-void update_player_bullets() {
-    update_bullet_positions(&player_bullet_arr);
-}
-
-void update_enemy_bullets() {
-    update_bullet_positions(&enemy_bullet_arr);
+    enemy_bullet_arr.size -= offset;
 }
 
 // See the Wikipedia article on
@@ -266,7 +327,7 @@ unsigned int gen_rand(int range) {
 }
 
 
-#define INVERSE_BULLET_CHANCE 5
+#define INVERSE_BULLET_CHANCE 1000
 
 void add_enemy_bullets(){
     int i;
