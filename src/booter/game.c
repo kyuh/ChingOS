@@ -41,7 +41,7 @@ typedef struct {
     GameUnionType *data;
     int size;
     int capacity;
-} StringArray;
+} GameArray;
 
 #if 0
 
@@ -122,10 +122,12 @@ void c_start(void) {
 
      // vvv GAME STUFF GOES HERE
     #if 0
-    float a = 3.65;
-    float b = 3.22;
-    float c = a + b;
+    volatile float a = 3.65;
+    volatile float b = 3.22;
+    volatile float c = a + b;
     #endif
+
+    color_pixel(LIGHT_CYAN, 5 * X_RES + 10);
 
     /* Loop forever, so that we don't fall back into the bootloader code. */
     while (1) {

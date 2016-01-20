@@ -23,6 +23,9 @@
 #define WHITE         15
 
 
+#define X_RES 320
+#define Y_RES 200
+
 void init_video(void);
 void write_string(unsigned char, char*);
 
