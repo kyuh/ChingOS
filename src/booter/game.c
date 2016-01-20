@@ -236,12 +236,29 @@ float kabs(float x){
 }
 
 int pb_enemy_intersect(Bullet b, Enemy e){
-    return (kabs(b.pos_y - e.pos_y) < 10);
+    //return (kabs(b.pos_y - e.pos_y) < 10);
+
+    int y_in_range = ((e.pos_y - ENEMY_HEIGHT < b.pos_y + BULLET_HEIGHT)
+                   || (e.pos_y + ENEMY_HEIGHT > b.pos_y - BULLET_HEIGHT));
+
+    int x_in_range = ((e.pos_x - ENEMY_WIDTH < b.pos_x + BULLET_WIDTH)
+                   || (e.pos_x + ENEMY_WIDTH > b.pos_x - BULLET_WIDTH));
+
+    //return x_in_range;
+    return (x_in_range && y_in_range);
+
 }
 
 int eb_player_intersect(Bullet b, Player p){
-    //return (kabs(b.pos_x - p.pos_x) < 10);
-    return 0;
+
+    int y_in_range = ((p.pos_y - PLAYER_HEIGHT < b.pos_y + BULLET_HEIGHT)
+                   || (p.pos_y + PLAYER_HEIGHT > b.pos_y - BULLET_HEIGHT));
+
+    int x_in_range = ((p.pos_x - PLAYER_WIDTH < b.pos_x + BULLET_WIDTH)
+                   || (p.pos_x + PLAYER_WIDTH > b.pos_x - BULLET_WIDTH));
+
+    return (x_in_range && y_in_range);
+
 }
 
 
@@ -250,12 +267,22 @@ void update_player_bullets() {
     // Init temporary storage space for filtered bullets
     //temp_arr = createGameArray(MAX_TEMP, space + TEMP_ARR_OFFSET);
 
+
+    //draw_bullet(WHITE, 0, 50, 20);
+    //return 0;
+
+
     // We'll basically overwrite any bullet that needs
     // to be removed
     int pb_offset = 0;
 
+
     int i;
     for (int i = 0; i < player_bullet_arr.size; i++){
+
+        // TEST
+        //draw_bullet(WHITE, 0, 50, 180);
+
         GameUnion b_gu = GameArrayGet(&player_bullet_arr, i);
         b_gu.bullet.pos_x += b_gu.bullet.vel_x;
         b_gu.bullet.pos_y += b_gu.bullet.vel_y;
@@ -430,7 +457,7 @@ void c_start(void) {
         
         // 2 ticks per game loop
         // so approximately 30fps
-        sleep_until(currentTime + 3);
+        sleep_until(currentTime + 10);
     }
 }
 

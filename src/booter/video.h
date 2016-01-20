@@ -26,6 +26,15 @@
 #define X_RES 320
 #define Y_RES 200
 
+
+#define ENEMY_DIM 16
+#define ENEMY_WIDTH (ENEMY_DIM)
+#define ENEMY_HEIGHT (ENEMY_DIM)
+#define PLAYER_HEIGHT 24
+#define PLAYER_WIDTH 16
+#define BULLET_WIDTH 8
+#define BULLET_HEIGHT 8
+
 void init_video(void);
 void write_string(unsigned char, char*);
 
