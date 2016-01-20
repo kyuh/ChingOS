@@ -25,8 +25,6 @@
  */
 #define VIDEO_BUFFER ((char *) 0xA0000)
 
-#define X_RES 320
-#define Y_RES 200
 
 /* TODO:  You can create static variables here to hold video display state,
  *        such as the current foreground and background color, a cursor
@@ -41,7 +39,7 @@ void color_screen(unsigned char color)
     char* image = &(assets->screen[0]);
     for(int i = 0; i < X_RES * Y_RES; i++)
     {
-        VIDEO_BUFFER[i] = image[i];
+        VIDEO_BUFFER[i] = color;
     }
 }
 
@@ -245,6 +243,21 @@ void init_video(void) {
      */
     // Clear Screen - not yet debugged.
     // clearScreen();
+
+    #if 0
+    //TEST~nico~~
+    #if 0
+    write_string_offset(RED, string, 10);
+    #endif
+
+    // TEST 2~~nico~~~~
+    color_pixel(RED, 50);
+    color_pixel(BLUE, 52);
+    color_pixel(YELLOW, 54);
+    color_pixel(WHITE, 210);
+    color_pixel(GREEN, 212);
+    color_pixel(CYAN, 214);
+    #endif
 
 }
 

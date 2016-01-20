@@ -23,7 +23,18 @@
 #define WHITE         15
 
 
+#define X_RES 320
+#define Y_RES 200
+
 void init_video(void);
 void write_string(unsigned char, char*);
+
+void color_screen(unsigned char color);
+
+void draw_player(int x, int y);
+
+void draw_enemy(int type, int x, int y);
+
+void draw_bullet(int color, int type, int x, int y);
 
 #endif /* VIDEO_H */
