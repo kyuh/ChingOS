@@ -1,0 +1,4 @@
+#ifndef ASSETS_H
+#define ASSETS_H
+
+typedef struct Game_Assets{

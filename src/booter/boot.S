@@ -101,6 +101,14 @@ boot_start:
 	#        (OR IF YOU DECIDE YOU DON'T WANT TO PUT ANYTHING HERE.)
 	#---------------------------------------------------------------------
 
+    # hook us up with some sexy ass vga shit
+    # function code for set video mode
+    mov $0x0, %ah
+    # mode 13h, 320x200 full color fun
+    mov $0x13, %al
+    # call the interrupt
+    int $0x10
+
 	#=====================================================================
 	# Next, set up for transition from 16-bit real mode to 32-bit
 	# protected mode.  All we strictly need for this is a Global
