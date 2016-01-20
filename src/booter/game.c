@@ -287,11 +287,15 @@ void c_start(void) {
     GameUnion pb_gu;
     pb_gu.bullet.pos_x = 100;
     pb_gu.bullet.pos_y = 100;
+    pb_gu.bullet.vel_x = 0;
+    pb_gu.bullet.vel_y = 0;
     GameArrayInsert(&player_bullet_arr, pb_gu);
 
     GameUnion eb_gu;
     eb_gu.bullet.pos_x = 200;
     eb_gu.bullet.pos_y = 120;
+    pb_gu.bullet.vel_x = 0;
+    pb_gu.bullet.vel_y = 0;
     GameArrayInsert(&enemy_bullet_arr, eb_gu);
 
 
