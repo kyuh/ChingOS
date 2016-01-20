@@ -29,4 +29,6 @@
 void init_video(void);
 void write_string(unsigned char, char*);
 
+void color_screen(unsigned char color);
+
 #endif /* VIDEO_H */

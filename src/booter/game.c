@@ -99,6 +99,8 @@ char *space = 0x100000;
 #define PLAYER_START_POS_X 160
 #define PLAYER_START_POS_Y 150
 
+#define PLAYER_MOVE_INCREMENT 3
+
 
 void init_entities() {
     // Init player
@@ -129,6 +131,9 @@ void init_entities() {
 // Tentative drawing function
 void draw_entities(){
     int i;
+
+    // clear
+    color_screen(BLACK);
 
     // Draw player
     color_pixel(LIGHT_GREEN, getPixelOffset(player.pos_x, player.pos_y));
@@ -178,6 +183,23 @@ void handle_keyboard(){
         b_gu.bullet = b;
         GameArrayInsert(&player_bullet_arr, b_gu);
     }
+
+    if (keys_pressed[KEY_LEFT]){
+        player.pos_x -= PLAYER_MOVE_INCREMENT;
+    }
+
+    if (keys_pressed[KEY_RIGHT]){
+        player.pos_x += PLAYER_MOVE_INCREMENT;
+    }
+
+    if (keys_pressed[KEY_DOWN]){
+        player.pos_y += PLAYER_MOVE_INCREMENT;
+    }
+
+    if (keys_pressed[KEY_UP]){
+        player.pos_y -= PLAYER_MOVE_INCREMENT;
+    }
+
 }
 
 
@@ -211,6 +233,7 @@ void c_start(void) {
 
     init_entities();
 
+    // TEST
     // Add some random stray bullets for testing
     GameUnion pb_gu;
     pb_gu.bullet.pos_x = 100;
@@ -225,6 +248,7 @@ void c_start(void) {
 
     draw_entities();
 
+    // TEST
     color_pixel(LIGHT_CYAN, 5 * X_RES + 10);
 
     /* Loop forever, so that we don't fall back into the bootloader code. */
@@ -232,7 +256,7 @@ void c_start(void) {
         int currentTime = ticks;
         
         handle_keyboard();
-        
+
         draw_entities();
         
         // 2 ticks per game loop

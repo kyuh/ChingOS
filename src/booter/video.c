@@ -38,7 +38,7 @@ void color_screen(unsigned char color)
     char* image = &(assets->screen[0]);
     for(int i = 0; i < X_RES * Y_RES; i++)
     {
-        VIDEO_BUFFER[i] = image[i];
+        VIDEO_BUFFER[i] = color;
     }
 }
 
