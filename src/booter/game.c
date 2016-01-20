@@ -180,8 +180,12 @@ void draw_entities(){
 #define KEY_RIGHT (0x20)
 #define KEY_SPACE (0x39)
 
+
+#define BULLET_WAIT 30
+int last_bullet_tick = -1;
+
 void handle_keyboard(){
-    if (keys_pressed[KEY_SPACE]){
+    if (keys_pressed[KEY_SPACE] && (last_bullet_tick + BULLET_WAIT < ticks)){
         // player shoots bullet
         Bullet b;
         b.pos_x = 160;
@@ -192,6 +196,8 @@ void handle_keyboard(){
         GameUnion b_gu;
         b_gu.bullet = b;
         GameArrayInsert(&player_bullet_arr, b_gu);
+
+        last_bullet_tick = ticks;
     }
 
     if (keys_pressed[KEY_LEFT]){
