@@ -138,7 +138,9 @@ void init_video(void) {
 
     #if 0
     //TEST~nico~~
+    #if 0
     write_string_offset(RED, string, 10);
+    #endif
 
     // TEST 2~~nico~~~~
     color_pixel(RED, 50);
