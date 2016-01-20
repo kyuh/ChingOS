@@ -70,6 +70,11 @@ GameUnion GameArrayGet(GameArray *gArr, unsigned int idx){
     return gArr->data[idx];
 }
 
+// TODO: Probably should put some safety check
+GameUnion GameArraySet(GameArray *gArr, unsigned int idx, GameUnion thing){
+    gArr->data[idx] = thing;
+}
+
 int getPixelOffset(int x, int y){
     return y * X_RES + x;
 }
@@ -110,6 +115,7 @@ void init_entities() {
     // Init enemies
     enemy_arr = createGameArray(MAX_ENEMIES, space + ENEMY_ARR_OFFSET);
 
+    // (Just create one for now and put it at a set location)
     Enemy test_enemy;
     test_enemy.pos_x = 160;
     test_enemy.pos_y = 50;
@@ -177,7 +183,7 @@ void handle_keyboard(){
         b.pos_x = 160;
         b.pos_y = 170;
         b.vel_x = 0;
-        b.vel_y = 0;
+        b.vel_y = 2;
 
         GameUnion b_gu;
         b_gu.bullet = b;
@@ -200,6 +206,30 @@ void handle_keyboard(){
         player.pos_y -= PLAYER_MOVE_INCREMENT;
     }
 
+}
+
+int bound_check_x(float x){
+    return (x >= 0 && x < X_RES);
+}
+
+int bound_check_y(float y){
+    return (y >= 0 && y < Y_RES);
+}
+
+
+void update_bullet_positions(GameArray *bullet_arr){
+    int i;
+    for (int i = 0; i < bullet_arr->size; i++){
+        GameUnion b_gu = GameArrayGet(bullet_arr, i);
+        b_gu.bullet.pos_x += b_gu.bullet.vel_x;
+        b_gu.bullet.pos_y += b_gu.bullet.vel_y;
+        GameArraySet(bullet_arr, i, b_gu);
+    }
+}
+
+
+void update_player_bullets(){
+    update_bullet_positions(&player_bullet_arr);
 }
 
 
@@ -257,7 +287,10 @@ void c_start(void) {
         
         handle_keyboard();
 
+        update_player_bullets();
+
         draw_entities();
+
         
         // 2 ticks per game loop
         // so approximately 30fps
