@@ -159,6 +159,27 @@ void draw_entities(){
 }
 
 
+#define KEY_UP    (0x11)
+#define KEY_DOWN  (0x1F)
+#define KEY_LEFT  (0x1E)
+#define KEY_RIGHT (0x20)
+#define KEY_SPACE (0x39)
+
+void handle_keyboard(){
+    if (keys_pressed[KEY_SPACE]){
+        // player shoots bullet
+        Bullet b;
+        b.pos_x = 160;
+        b.pos_y = 170;
+        b.vel_x = 0;
+        b.vel_y = 0;
+
+        GameUnion b_gu;
+        b_gu.bullet = b;
+        GameArrayInsert(&player_bullet_arr, b_gu);
+    }
+}
+
 
 /* This is the entry-point for the game! */
 void c_start(void) {
@@ -210,7 +231,9 @@ void c_start(void) {
     while (1) {
         int currentTime = ticks;
         
-        //game logic goes here
+        handle_keyboard();
+        
+        draw_entities();
         
         // 2 ticks per game loop
         // so approximately 30fps
