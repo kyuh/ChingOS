@@ -169,7 +169,7 @@ void draw_entities(){
         GameUnion enemy_bullet_gu = GameArrayGet(&enemy_bullet_arr, i);
         int pos_x = (int) enemy_bullet_gu.bullet.pos_x;
         int pos_y = (int) enemy_bullet_gu.bullet.pos_y;
-        draw_bullet(WHITE, 0, pos_x, pos_y);
+        draw_bullet(12, 2, pos_x, pos_y);
     }
 }
 
@@ -224,6 +224,23 @@ int bound_check_x(float x){
 
 int bound_check_y(float y){
     return (y >= 0 && y < Y_RES);
+}
+
+//fast inverse square root
+float Q_rsqrt( float number )
+{
+        long i;
+        float x2, y;
+        const float threehalfs = 1.5F;
+
+        x2 = number * 0.5F;
+        y  = number;
+        i  = * ( long * ) &y;                       // evil floating point bit level hacking
+        i  = 0x5f3759df - ( i >> 1 );               // what the fuck?
+        y  = * ( float * ) &i;
+        y  = y * ( threehalfs - ( x2 * y * y ) );   // 1st iteration
+        y  = y * ( threehalfs - ( x2 * y * y ) );   // 2nd iteration, this can b
+        return y;
 }
 
 
@@ -333,7 +350,7 @@ unsigned int gen_rand(int range) {
 }
 
 
-#define INVERSE_BULLET_CHANCE 1000
+#define INVERSE_BULLET_CHANCE 100
 
 void add_enemy_bullets(){
     int i;
@@ -350,10 +367,12 @@ void add_enemy_bullets(){
 
             // boring velocity for now
             // find the direction of the player
-            int dir_x = player.pos_x - b.pos_x;
-            int dir_y = player.pos_y - b.pos_y;
-            b.vel_x = 0;
-            b.vel_y = 2;
+            float dir_x = player.pos_x - b.pos_x;
+            float dir_y = player.pos_y - b.pos_y;
+
+            float normalization_factor = Q_rsqrt(dir_x * dir_x + dir_y * dir_y);
+            b.vel_x = dir_x * normalization_factor;
+            b.vel_y = dir_y * normalization_factor;
 
             GameUnion gu_cur_bullet;
             gu_cur_bullet.bullet = b;
@@ -394,23 +413,6 @@ void c_start(void) {
 
     init_entities();
 
-    // TEST
-    // Add some random stray bullets for testing
-    GameUnion pb_gu;
-    pb_gu.bullet.pos_x = 100;
-    pb_gu.bullet.pos_y = 100;
-    pb_gu.bullet.vel_x = 0;
-    pb_gu.bullet.vel_y = 0;
-    GameArrayInsert(&player_bullet_arr, pb_gu);
-
-    GameUnion eb_gu;
-    eb_gu.bullet.pos_x = 200;
-    eb_gu.bullet.pos_y = 120;
-    pb_gu.bullet.vel_x = 0;
-    pb_gu.bullet.vel_y = 0;
-    GameArrayInsert(&enemy_bullet_arr, eb_gu);
-
-
     draw_entities();
 
     /* Loop forever, so that we don't fall back into the bootloader code. */
@@ -432,7 +434,7 @@ void c_start(void) {
 
         // 2 ticks per game loop
         // so approximately 30fps
-        if(!sleep_until(currentTime + 3))
+        if(!sleep_until(currentTime + 0))
         {
             write_string(3, "you're lagging go faster");
             //this will make you lag even more but whatev
