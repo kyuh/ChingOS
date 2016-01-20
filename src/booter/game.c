@@ -141,13 +141,20 @@ void draw_entities(){
         color_pixel(LIGHT_CYAN, getPixelOffset(pos_x, pos_y));
     }
 
-
     // Draw player bullets
     for (i = 0; i < player_bullet_arr.size; i++){
         GameUnion player_bullet_gu = GameArrayGet(&player_bullet_arr, i);
         int pos_x = (int) player_bullet_gu.bullet.pos_x;
         int pos_y = (int) player_bullet_gu.bullet.pos_y;
         color_pixel(WHITE, getPixelOffset(pos_x, pos_y));
+    }
+
+    // Draw enemy bullets
+    for (i = 0; i < enemy_bullet_arr.size; i++){
+        GameUnion enemy_bullet_gu = GameArrayGet(&enemy_bullet_arr, i);
+        int pos_x = (int) enemy_bullet_gu.bullet.pos_x;
+        int pos_y = (int) enemy_bullet_gu.bullet.pos_y;
+        color_pixel(LIGHT_RED, getPixelOffset(pos_x, pos_y));
     }
 }
 
@@ -188,6 +195,11 @@ void c_start(void) {
     pb_gu.bullet.pos_x = 100;
     pb_gu.bullet.pos_y = 100;
     GameArrayInsert(&player_bullet_arr, pb_gu);
+
+    GameUnion eb_gu;
+    eb_gu.bullet.pos_x = 200;
+    eb_gu.bullet.pos_y = 120;
+    GameArrayInsert(&enemy_bullet_arr, eb_gu);
 
 
     draw_entities();
