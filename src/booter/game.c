@@ -115,17 +115,39 @@ void init_entities() {
     GameUnion enemy_gu;
     enemy_gu.enemy = test_enemy;
     GameArrayInsert(&enemy_arr, enemy_gu);
+
+
+    // Init player bullets
+    player_bullet_arr = createGameArray(MAX_PLAYER_BULLETS, space + PLAYER_BULLET_ARR_OFFSET);
+
+    // Init player bullets
+    enemy_bullet_arr = createGameArray(MAX_ENEMY_BULLETS, space + ENEMY_BULLET_ARR_OFFSET);
+
 }
 
 
 // Tentative drawing function
-void draw_enemies(){
+void draw_entities(){
     int i;
+
+    // Draw player
+    color_pixel(LIGHT_GREEN, getPixelOffset(player.pos_x, player.pos_y));
+
+    // Draw enemies
     for (i = 0; i < enemy_arr.size; i++){
         GameUnion enemy_gu = GameArrayGet(&enemy_arr, i);
         int pos_x = (int) enemy_gu.enemy.pos_x;
         int pos_y = (int) enemy_gu.enemy.pos_y;
         color_pixel(LIGHT_CYAN, getPixelOffset(pos_x, pos_y));
+    }
+
+
+    // Draw player bullets
+    for (i = 0; i < player_bullet_arr.size; i++){
+        GameUnion player_bullet_gu = GameArrayGet(&player_bullet_arr, i);
+        int pos_x = (int) player_bullet_gu.bullet.pos_x;
+        int pos_y = (int) player_bullet_gu.bullet.pos_y;
+        color_pixel(WHITE, getPixelOffset(pos_x, pos_y));
     }
 }
 
@@ -157,14 +179,18 @@ void c_start(void) {
     enable_interrupts();
 
      // vvv GAME STUFF GOES HERE
-    #if 0
-    volatile float a = 3.65;
-    volatile float b = 3.22;
-    volatile float c = a + b;
-    #endif
+
 
     init_entities();
-    draw_enemies();
+
+    // Add some random stray bullets for testing
+    GameUnion pb_gu;
+    pb_gu.bullet.pos_x = 100;
+    pb_gu.bullet.pos_y = 100;
+    GameArrayInsert(&player_bullet_arr, pb_gu);
+
+
+    draw_entities();
 
     color_pixel(LIGHT_CYAN, 5 * X_RES + 10);
 
