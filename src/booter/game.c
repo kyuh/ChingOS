@@ -25,7 +25,7 @@ typedef struct {
     float pos_x;
     float pos_y;
     int type;
-    int state;
+    float state;
 } Enemy;
 
 
@@ -127,6 +127,8 @@ void init_entities() {
     Enemy test_enemy;
     test_enemy.pos_x = 160;
     test_enemy.pos_y = 50;
+    test_enemy.type = 0;
+    test_enemy.state = 0;
 
     GameUnion enemy_gu;
     enemy_gu.enemy = test_enemy;
@@ -157,7 +159,7 @@ void draw_entities(){
         GameUnion enemy_gu = GameArrayGet(&enemy_arr, i);
         int pos_x = (int) enemy_gu.enemy.pos_x;
         int pos_y = (int) enemy_gu.enemy.pos_y;
-        draw_enemy(0, pos_x, pos_y);
+        draw_enemy(enemy_gu.enemy.type, pos_x, pos_y);
     }
 
     // Draw player bullets
@@ -278,7 +280,7 @@ int eb_player_intersect(Bullet b, Player p){
     int x_in_range = ((p.pos_x - PLAYER_WIDTH < b.pos_x + BULLET_WIDTH)
                    || (p.pos_x + PLAYER_WIDTH > b.pos_x - BULLET_WIDTH));
 
-    return (x_in_range && y_in_range);
+    return 0;//(x_in_range && y_in_range);
 
 }
 
@@ -415,16 +417,58 @@ void add_enemy_bullets(){
 
 void spawn_enemies()
 {
-    unsigned int testval = gen_rand(37);
+    unsigned int testval = gen_rand(23);
     if(!testval)
     {
         Enemy test_enemy;
         test_enemy.pos_x = gen_rand(X_RES);
-        test_enemy.pos_y = 50;
+        test_enemy.pos_y = 0;
+        test_enemy.type = gen_rand(111) > 50 ? 1 : 0;
+        test_enemy.state = ((float)gen_rand(100) / 50.) - 1.0;
 
         GameUnion enemy_gu;
         enemy_gu.enemy = test_enemy;
         GameArrayInsert(&enemy_arr, enemy_gu);
+    }
+}
+
+void update_enemy_positions()
+{
+    int i;
+    for (i = 0; i < enemy_arr.size; i++){
+        GameUnion enemy = GameArrayGet(&enemy_arr, i);
+        //rear shooter enemies
+        if(enemy.enemy.type == 1)
+        {
+            enemy.enemy.state++;
+            if(enemy.enemy.pos_y < 50)
+            {
+                enemy.enemy.pos_y += 1;
+            }
+            
+            if(enemy.enemy.state > 100)
+            {
+                enemy.enemy.pos_x += enemy.enemy.pos_x > 160 ? 1 : -1;
+            }
+        }
+        else
+        {
+            enemy.enemy.pos_y += 0.8;
+            enemy.enemy.state += ((float)gen_rand(100) / 100.) - 0.5;
+            //now attract it to the ends
+            if(enemy.enemy.pos_x > 160)
+            {
+                enemy.enemy.state += .1;
+                enemy.enemy.state = enemy.enemy.state < 1.5 ? enemy.enemy.state : 1.5;
+            }
+            else
+            {
+                enemy.enemy.state -= .1;
+                enemy.enemy.state = enemy.enemy.state > -1.5 ? enemy.enemy.state : -1.5;
+            }
+            enemy.enemy.pos_x += enemy.enemy.state;
+        }
+        GameArraySet(&enemy_arr, i, enemy);
     }
 }
 
@@ -470,6 +514,8 @@ void c_start(void) {
         spawn_enemies();
 
         update_player_bullets();
+
+        update_enemy_positions();
 
         add_enemy_bullets();
 
