@@ -5,6 +5,7 @@
 #include "handlers.h"
 #include "keyboard.h"
 
+#include "strings.h"
 
 
 
@@ -302,11 +303,11 @@ int pb_enemy_intersect(Bullet b, Enemy e){
 
 int eb_player_intersect(Bullet b, Player p){
 
-    int y_in_range = kabs(b.pos_y - p.pos_y) < PLAYER_HEIGHT / 2.0 + BULLET_HEIGHT / 2.0;
+    int y_in_range = kabs(b.pos_y - p.pos_y) < 4 / 2.0 + BULLET_HEIGHT / 2.0;
 
-    int x_in_range = kabs(b.pos_x - p.pos_x) < PLAYER_WIDTH / 2.0 + BULLET_WIDTH / 2.0;
+    int x_in_range = kabs(b.pos_x - p.pos_x) < 4 / 2.0 + BULLET_WIDTH / 2.0;
 
-    return 0;//(x_in_range && y_in_range);
+    return (x_in_range && y_in_range);
 
 }
 
@@ -466,13 +467,13 @@ void add_enemy_bullets(int type){
 
 void spawn_enemies()
 {
-    unsigned int testval = gen_rand(23);
+    unsigned int testval = gen_rand(19);
     if(!testval)
     {
         Enemy test_enemy;
         test_enemy.pos_x = gen_rand(X_RES);
         test_enemy.pos_y = 0;
-        test_enemy.type = gen_rand(111) > 50 ? 1 : 0;
+        test_enemy.type = gen_rand(111) > 90 ? 1 : 0;
         test_enemy.state = ((float)gen_rand(100) / 50.) - 1.0;
 
         GameUnion enemy_gu;
@@ -483,8 +484,8 @@ void spawn_enemies()
 
 void update_enemy_positions()
 {
-    int i;
-    for (i = 0; i < enemy_arr.size; i++){
+    int i = 0;
+    while (i < enemy_arr.size) {
         GameUnion enemy = GameArrayGet(&enemy_arr, i);
         //rear shooter enemies
         if(enemy.enemy.type == 1)
@@ -503,7 +504,7 @@ void update_enemy_positions()
         else
         {
             enemy.enemy.pos_y += 0.8;
-            enemy.enemy.state += ((float)gen_rand(100) / 100.) - 0.5;
+            enemy.enemy.state += ((float)gen_rand(100) / 200.) - 0.25;
             //now attract it to the ends
             if(enemy.enemy.pos_x > 160)
             {
@@ -518,6 +519,15 @@ void update_enemy_positions()
             enemy.enemy.pos_x += enemy.enemy.state;
         }
         GameArraySet(&enemy_arr, i, enemy);
+        //remove oob enemies
+        if(enemy.enemy.pos_x < 0 || enemy.enemy.pos_x > X_RES)
+        {
+            GameArrayDelete(&enemy_arr, i);
+        }
+        else
+        {
+            i++;
+        }
     }
 }
 
@@ -548,7 +558,41 @@ void c_start(void) {
     enable_interrupts();
 
      // vvv GAME STUFF GOES HERE
+    
+    //title screen goes here
+    while (1) {
+        int currentTime = ticks;
+        
+        if(keys_pressed[KEY_SPACE])
+        {
+            break;
+        }
 
+        //draw bg 
+        draw_bg_screen();
+
+        color_rect(BLUE, 110, 40, 100, 55);
+
+        write_string_position(WHITE, hu, 150, 45);
+        write_string_position(RED, "Embodiment of the OS", 120, 55);
+        write_string_position(RED, "Press z to play", 125, 65);
+        write_string_position(WHITE, "arrows move, z shoots", 120, 75);
+        //update the screen
+        update_screen();
+
+        // 2 ticks per game loop
+        // so approximately 30fps
+        if(!sleep_until(currentTime + 3))
+        {
+            write_string(3, "you're lagging go faster");
+            //this will make you lag even more but whatev
+            update_screen();
+        }
+    }
+
+
+
+    //now for the game
 
     init_entities();
 

@@ -2,7 +2,6 @@
 #include "handlers.h"
 #include "boot.h"
 #include "assets.h"
-#include "strings.h"
 #include "timer.h"
 
 /* This is the address of the VGA text-mode video buffer.  Note that this
@@ -52,6 +51,18 @@ void color_screen(unsigned char color)
     for(int i = 0; i < X_RES * Y_RES; i++)
     {
         VIDEO_BUFFER[i] = color;
+    }
+}
+
+//no bounds checking
+void color_rect(unsigned char color, int x, int y, int width, int height)
+{
+    for(int i = x; i < x + width; i++)
+    {
+        for(int j = y; j < y + height; j++)
+        {
+            VIDEO_BUFFER[i + X_RES * j] = color;
+        }
     }
 }
 
@@ -246,9 +257,9 @@ void init_video(void) {
     assets = (Game_Assets*)datas;
 
     //color_screen(0x3f);
-    write_string_position(5, "wowowow", 5, 5);
-    write_string_position(5, hu, 5, 15);
-    write_string_position(5, katana, 5, 25);
+//    write_string_position(5, "wowowow", 5, 5);
+//    write_string_position(5, hu, 5, 15);
+//    write_string_position(5, katana, 5, 25);
 
     draw_bullet(6, 11, 15, 5);
     draw_player(15, 35);
