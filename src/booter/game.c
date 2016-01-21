@@ -188,7 +188,14 @@ void draw_entities(){
         GameUnion enemy_bullet_gu = GameArrayGet(&enemy_bullet_arr, i);
         int pos_x = (int) enemy_bullet_gu.bullet.pos_x;
         int pos_y = (int) enemy_bullet_gu.bullet.pos_y;
-        draw_bullet(12, 2, pos_x, pos_y);
+        if(enemy_bullet_gu.bullet.type == BULLET_T)
+        {
+            draw_bullet(12, 2, pos_x, pos_y);
+        }
+        else
+        {
+            draw_bullet(5, 7, pos_x, pos_y);
+        }
     }
 }
 
@@ -212,6 +219,7 @@ void handle_keyboard(){
         b.pos_y = player.pos_y - 5;
         b.vel_x = 0;
         b.vel_y = -16;
+        b.type = BULLET_T;
 
         GameUnion b_gu;
         b_gu.bullet = b;
@@ -241,18 +249,6 @@ void handle_keyboard(){
     if (keys_pressed[KEY_UP]){
         player.pos_y -= increment;
     }
-    if (keys_pressed[KEY_SHIFT]){
-        // For each enemy, spawn a powerup.
-        int i;
-        for (i = 0; i < enemy_arr.size; i++)
-        {
-            add_enemy_bullets(POWER_T);
-        }
-        enemy_bullet_arr.size = 0;
-        player_bullet_arr.size = 0;
-        enemy_arr = 0;
-    }
-
 }
 
 int bound_check_x(float x){
@@ -312,6 +308,7 @@ int eb_player_intersect(Bullet b, Player p){
 }
 
 
+void add_powerup(int);
 void update_player_bullets() {
  
     // Init temporary storage space for filtered bullets
@@ -340,7 +337,7 @@ void update_player_bullets() {
         if (!bound_check_x(b_gu.bullet.pos_x) || !bound_check_y(b_gu.bullet.pos_y)){
             pb_offset++;
         } else {
-
+            
             int enemy_offset = 0;
             int an_enemy_hit = 0;
             for (int j = 0; j < enemy_arr.size; j++){
@@ -349,6 +346,7 @@ void update_player_bullets() {
                 if (pb_enemy_intersect(b_gu.bullet, e_gu.enemy)){
                     enemy_offset++;
                     an_enemy_hit = 1;
+                    add_powerup(j);
                 } else {
                     GameArraySet(&enemy_arr, j - enemy_offset, e_gu);
                 }
@@ -390,11 +388,11 @@ void update_enemy_bullets() {
             color_screen(BLACK);
             // If the bullet is a power up, the player gets a powerup
             if (b_gu.bullet.type == POWER_T){
-                pflag = b_gu.bullet.status;
+                //pflag = b_gu.bullet.status;
             }
             else{
                 // For now, just loop, game over
-                while(1{})
+                while(1){}
             }
         } else {
             GameArraySet(&enemy_bullet_arr, i - offset, b_gu);
@@ -417,8 +415,36 @@ unsigned int gen_rand(int range) {
 
 
 #define INVERSE_BULLET_CHANCE 73
+#define INVERSE_TYPE_CHANCE 2
 
-void add_enemy_bullets(int type){
+void add_powerup(int offset){
+    GameUnion gu_cur_enemy = GameArrayGet(&enemy_arr, offset);
+    // Don't add at all ticks - randomly select
+    Bullet b;
+    b.pos_x = gu_cur_enemy.enemy.pos_x;
+    b.pos_y = gu_cur_enemy.enemy.pos_y;
+    b.type = POWER_T;
+    
+    // See if we get red or blue flavor.
+    unsigned int status = gen_rand(INVERSE_TYPE_CHANCE);
+    if (!status){
+        b.state = PRED;
+    }
+    else{
+        b.state = PBLUE;
+    }
+    // Powerups just fall down for now.
+    b.vel_x = 0.0001;
+    b.vel_y = 1.0;
+    
+    GameUnion gu_cur_bullet;
+    gu_cur_bullet.bullet = b;
+    
+    GameArrayInsert(&enemy_bullet_arr, gu_cur_bullet);
+}
+
+
+void add_enemy_bullets(){
     int i;
     for (i = 0; i < enemy_arr.size; i++){
 
@@ -430,33 +456,32 @@ void add_enemy_bullets(int type){
             Bullet b;
             b.pos_x = gu_cur_enemy.enemy.pos_x;
             b.pos_y = gu_cur_enemy.enemy.pos_y;
-            b.type = type;
+            b.type = BULLET_T;
 
-            if (type == BULLET_T){
-                b.status = NIL;
-                // boring velocity for now
-                // find the direction of the player
-                float dir_x = player.pos_x - b.pos_x;
-                float dir_y = player.pos_y - b.pos_y;
+           b.state = NIL;
+           // boring velocity for now
+           // find the direction of the player
+           float dir_x = player.pos_x - b.pos_x;
+           float dir_y = player.pos_y - b.pos_y;
 
-                float normalization_factor = Q_rsqrt(dir_x * dir_x + dir_y * dir_y);
-                b.vel_x = dir_x * normalization_factor;
-                b.vel_y = dir_y * normalization_factor;
-            }
-            else{
-                // See if we get red or blue flavor.
-                unsigned int status = gen_rand(INVERSE_BULLET_CHANCE);
-                if (!status){
-                    b.status = PRED;
-                }
-                else{
-                    b.status = PBLUE;
-                }
-                // Powerups just fall down for now.
-                b.vel_x = 0.0;
-                b.vel_y = 1.0;
-            }
-
+           float normalization_factor = Q_rsqrt(dir_x * dir_x + dir_y * dir_y);
+           b.vel_x = dir_x * normalization_factor;
+           b.vel_y = dir_y * normalization_factor;
+//            }
+//            else{
+//                // See if we get red or blue flavor.
+//                unsigned int status = gen_rand(INVERSE_BULLET_CHANCE);
+//                if (!status){
+//                    b.state = PRED;
+//                }
+//                else{
+//                    b.state = PBLUE;
+//                }
+//                // Powerups just fall down for now.
+//                b.vel_x = 0.0;
+//                b.vel_y = 1.0;
+//            }
+//
             GameUnion gu_cur_bullet;
             gu_cur_bullet.bullet = b;
 
@@ -610,7 +635,7 @@ void c_start(void) {
 
         update_enemy_positions();
 
-        add_enemy_bullets(BULLET_T);
+        add_enemy_bullets();
 
         update_enemy_bullets();
 
