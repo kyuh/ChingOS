@@ -60,6 +60,11 @@ void GameArrayDeleteLast(GameArray *gArr){
     gArr->size -= 1;
 }
 
+void GameArrayDelete(GameArray *gArr, unsigned int idx){
+    gArr->data[idx] = gArr->data[gArr->size - 1];
+    gArr->size -= 1;
+}
+
 // Return if successfully inserted
 int GameArrayInsert(GameArray *gArr, GameUnion elt){
     if (gArr->size == gArr->capacity){
@@ -82,6 +87,7 @@ GameUnion GameArraySet(GameArray *gArr, unsigned int idx, GameUnion thing){
 int getPixelOffset(int x, int y){
     return y * X_RES + x;
 }
+
 
 
 
