@@ -11,13 +11,19 @@
 /* Wrapper for all game types,
 used so that we can have a common vector type */
 
+#define BULLET_T 0
+#define POWER_T 1
+#define NIL 0
+#define PRED 1
+#define PBLUE 2
+
 typedef struct {
     float pos_x;
     float pos_y;
     float vel_x;
     float vel_y;
-    int type;
-    int state;
+    int type;    // Holds bullet vs. powerup
+    int state;   // Holds powerup type.
 } Bullet;
 
 
@@ -234,6 +240,17 @@ void handle_keyboard(){
     if (keys_pressed[KEY_UP]){
         player.pos_y -= increment;
     }
+    if (keys_pressed[KEY_SHIFT]){
+        // For each enemy, spawn a powerup.
+        int i;
+        for (i = 0; i < enemy_arr.size; i++)
+        {
+            add_enemy_bullets(POWER_T);
+        }
+        enemy_bullet_arr.size = 0;
+        player_bullet_arr.size = 0;
+        enemy_arr = 0;
+    }
 
 }
 
@@ -370,8 +387,14 @@ void update_enemy_bullets() {
             offset++;
         } else if (eb_player_intersect(b_gu.bullet, player)){
             color_screen(BLACK);
-            // For now, just loop, game over
-            while(1){}
+            // If the bullet is a power up, the player gets a powerup
+            if (b_gu.bullet.type == POWER_T){
+                pflag = b_gu.bullet.status;
+            }
+            else{
+                // For now, just loop, game over
+                while(1{})
+            }
         } else {
             GameArraySet(&enemy_bullet_arr, i - offset, b_gu);
         }
@@ -394,7 +417,7 @@ unsigned int gen_rand(int range) {
 
 #define INVERSE_BULLET_CHANCE 73
 
-void add_enemy_bullets(){
+void add_enemy_bullets(int type){
     int i;
     for (i = 0; i < enemy_arr.size; i++){
 
@@ -406,15 +429,32 @@ void add_enemy_bullets(){
             Bullet b;
             b.pos_x = gu_cur_enemy.enemy.pos_x;
             b.pos_y = gu_cur_enemy.enemy.pos_y;
+            b.type = type;
 
-            // boring velocity for now
-            // find the direction of the player
-            float dir_x = player.pos_x - b.pos_x;
-            float dir_y = player.pos_y - b.pos_y;
+            if (type == BULLET_T){
+                b.status = NIL;
+                // boring velocity for now
+                // find the direction of the player
+                float dir_x = player.pos_x - b.pos_x;
+                float dir_y = player.pos_y - b.pos_y;
 
-            float normalization_factor = Q_rsqrt(dir_x * dir_x + dir_y * dir_y);
-            b.vel_x = dir_x * normalization_factor;
-            b.vel_y = dir_y * normalization_factor;
+                float normalization_factor = Q_rsqrt(dir_x * dir_x + dir_y * dir_y);
+                b.vel_x = dir_x * normalization_factor;
+                b.vel_y = dir_y * normalization_factor;
+            }
+            else{
+                // See if we get red or blue flavor.
+                unsigned int status = gen_rand(INVERSE_BULLET_CHANCE);
+                if (!status){
+                    b.status = PRED;
+                }
+                else{
+                    b.status = PBLUE;
+                }
+                // Powerups just fall down for now.
+                b.vel_x = 0.0;
+                b.vel_y = 1.0;
+            }
 
             GameUnion gu_cur_bullet;
             gu_cur_bullet.bullet = b;
@@ -526,7 +566,7 @@ void c_start(void) {
 
         update_enemy_positions();
 
-        add_enemy_bullets();
+        add_enemy_bullets(BULLET_T);
 
         update_enemy_bullets();
 
