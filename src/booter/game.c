@@ -127,7 +127,7 @@ char *space = (char *)0x100000;
 
 #define PLAYER_MOVE_INCREMENT 3
 
-
+int dead;
 void init_entities() {
     // Init player
     player.pos_x = PLAYER_START_POS_X;
@@ -414,7 +414,7 @@ void update_enemy_bullets() {
             }
             else{
                 // For now, just loop, game over
-                while(1){}
+                dead = 1;
             }
         } else {
             GameArraySet(&enemy_bullet_arr, i - offset, b_gu);
@@ -639,7 +639,6 @@ void c_start(void) {
     //now for the game
 
     init_entities();
-
     draw_entities();
 
     /* Loop forever, so that we don't fall back into the bootloader code. */
@@ -670,6 +669,27 @@ void c_start(void) {
             write_string(3, "you're lagging go faster");
             //this will make you lag even more but whatev
             update_screen();
+        }
+
+        //game over code
+        if(dead)
+        {
+            color_rect(BLUE, 110, 40, 100, 55);
+
+            write_string_position(WHITE, "Game Over", 150, 45);
+            write_string_position(RED, "Press z to restart", 125, 65);
+            while(1)
+            {
+                if(keys_pressed[KEY_SPACE])
+                {
+                    break;
+                }
+                update_screen();
+                sleep_until(currentTime + 3);
+            }
+            dead = 0;
+            init_entities();
+            draw_entities();
         }
     }
 }
