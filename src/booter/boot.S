@@ -61,7 +61,8 @@ boot_start:
     # the size is in la makefile even though donnie never told us before
     # it's nice that my c program will get silently truncated if I make 
     # it too large
-    movw $0x500, 0x2
+    # bochs is a POS and can't even read all the stuff at once
+    movw $0x80, 0x2
 
     #location to read to
     # read out shit right after the bootloader
@@ -74,10 +75,20 @@ boot_start:
     movl $1, 0x8
     movl $0, 0x12
 
+
+# loop over multiple reads because wow bochs sucks
+read_loop:
+
     # code 42h for extended read
     movb $0x42, %ah
+
     # 1st hdd
-    movb $0x80, %dl
+    # yeah man this is an HDD, even though it says floppy.img
+    # maybe you should have called it hdd.img
+
+    # so according to the docs, the BIOS gives us the boot device
+    # in dl already automatically.  We do this so we can boot from more things
+    # movb $0x80, %dl
 
     # our ds is already where it should be
     # now just set the si to 0
@@ -85,7 +96,14 @@ boot_start:
 
     # call the interrupt to read la data
     int $0x13
-    
+ 
+    addw $0x80, 0x8
+    addw $0x1000, 0x6
+
+    cmpw $700, 0x8
+
+    jle read_loop
+
     #TODO make sure no gay ass failures happen
 
 	mov	$STR_LOADED, %si

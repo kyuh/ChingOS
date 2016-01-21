@@ -59,6 +59,13 @@ run-qemu: $(FLOPPY_IMG)
 debug-qemu: $(FLOPPY_IMG)
 	qemu-system-i386 -soundhw pcspk -s -S $(FLOPPY_IMG)
 
+bochs.img: $(FLOPPY_IMG)
+	cp $(FLOPPY_IMG) bochs.img
+	truncate -s 10653696 bochs.img
+
+run-bochs: bochs.img
+	bochs
+
 clean:
 	rm -f *.o prog.lds.s $(BOOT_BIN) $(PROGRAM_BIN) $(FLOPPY_IMG)
 
