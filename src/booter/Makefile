@@ -19,6 +19,9 @@ FLOPPY_IMG = floppy.img
 
 all : $(FLOPPY_IMG)
 
+game.o: $(shell find assets -type f)
+	cd assets; bash assemble.sh
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o game.o game.c
 
 # Use gcc to build our assembly code so that we can use the C preprocessor
 # to #define constants for our bootloader.  The "-Wa,--gstabs" argument tells
@@ -67,7 +70,7 @@ run-bochs: bochs.img
 	bochs
 
 clean:
-	rm -f *.o prog.lds.s $(BOOT_BIN) $(PROGRAM_BIN) $(FLOPPY_IMG)
+	rm -f *.o prog.lds.s $(BOOT_BIN) $(PROGRAM_BIN) $(FLOPPY_IMG) assets.h datas.bin
 
 .PHONY: all clean run-qemu debug-qemu
 
