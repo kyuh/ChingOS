@@ -190,11 +190,25 @@ void draw_entities(){
         int pos_y = (int) enemy_bullet_gu.bullet.pos_y;
         if(enemy_bullet_gu.bullet.type == BULLET_T)
         {
-            draw_bullet(12, 2, pos_x, pos_y);
+            if(enemy_bullet_gu.bullet.state == PRED)
+            {
+                draw_bullet(2, 3, pos_x, pos_y);
+            }
+            else
+            {
+                draw_bullet(6, 2, pos_x, pos_y);
+            }
         }
         else
         {
-            draw_bullet(5, 7, pos_x, pos_y);
+            if(enemy_bullet_gu.bullet.state == PRED)
+            {
+                draw_bullet(2, 7, pos_x, pos_y);
+            }
+            else
+            {
+                draw_bullet(5, 7, pos_x, pos_y);
+            }
         }
     }
 }
@@ -381,14 +395,22 @@ void update_enemy_bullets() {
         GameUnion b_gu = GameArrayGet(&enemy_bullet_arr, i);
         b_gu.bullet.pos_x += b_gu.bullet.vel_x;
         b_gu.bullet.pos_y += b_gu.bullet.vel_y;
+        
+        //powerup bullet movement
+        if(b_gu.bullet.type == POWER_T && b_gu.bullet.vel_y < 2)
+        {
+            b_gu.bullet.vel_y += .01;
+        }
 
-        if (!bound_check_x(b_gu.bullet.pos_x) || !bound_check_y(b_gu.bullet.pos_y)){
+        if (b_gu.bullet.type != POWER_T && 
+            (!bound_check_x(b_gu.bullet.pos_x) || !bound_check_y(b_gu.bullet.pos_y))){
             offset++;
         } else if (eb_player_intersect(b_gu.bullet, player)){
             color_screen(BLACK);
             // If the bullet is a power up, the player gets a powerup
             if (b_gu.bullet.type == POWER_T){
                 //pflag = b_gu.bullet.status;
+                offset++;
             }
             else{
                 // For now, just loop, game over
@@ -434,8 +456,8 @@ void add_powerup(int offset){
         b.state = PBLUE;
     }
     // Powerups just fall down for now.
-    b.vel_x = 0.0001;
-    b.vel_y = 1.0;
+    b.vel_x = 0.0;
+    b.vel_y = -1.0;
     
     GameUnion gu_cur_bullet;
     gu_cur_bullet.bullet = b;
@@ -458,34 +480,31 @@ void add_enemy_bullets(){
             b.pos_y = gu_cur_enemy.enemy.pos_y;
             b.type = BULLET_T;
 
-           b.state = NIL;
-           // boring velocity for now
-           // find the direction of the player
-           float dir_x = player.pos_x - b.pos_x;
-           float dir_y = player.pos_y - b.pos_y;
+            b.state = 0;
+            // boring velocity for now
+            // find the direction of the player
+            float dir_x = player.pos_x - b.pos_x;
+            float dir_y = player.pos_y - b.pos_y;
 
-           float normalization_factor = Q_rsqrt(dir_x * dir_x + dir_y * dir_y);
-           b.vel_x = dir_x * normalization_factor;
-           b.vel_y = dir_y * normalization_factor;
-//            }
-//            else{
-//                // See if we get red or blue flavor.
-//                unsigned int status = gen_rand(INVERSE_BULLET_CHANCE);
-//                if (!status){
-//                    b.state = PRED;
-//                }
-//                else{
-//                    b.state = PBLUE;
-//                }
-//                // Powerups just fall down for now.
-//                b.vel_x = 0.0;
-//                b.vel_y = 1.0;
-//            }
-//
+            float normalization_factor = Q_rsqrt(dir_x * dir_x + dir_y * dir_y);
+            b.vel_x = dir_x * normalization_factor;
+            b.vel_y = dir_y * normalization_factor;
+            
             GameUnion gu_cur_bullet;
             gu_cur_bullet.bullet = b;
-
             GameArrayInsert(&enemy_bullet_arr, gu_cur_bullet);
+            //burst fire from shooter dudes
+            if(gu_cur_enemy.enemy.type == 1)
+            {
+                b.vel_x -= 1.75;
+                b.state = PRED;
+                for(int j = 0; j < 6; j ++)
+                {
+                    gu_cur_bullet.bullet = b;
+                    GameArrayInsert(&enemy_bullet_arr, gu_cur_bullet);
+                    b.vel_x += .5;
+                }
+            }
         }
     }
 }
