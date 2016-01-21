@@ -16,12 +16,16 @@ typedef struct {
     float pos_y;
     float vel_x;
     float vel_y;
+    int type;
+    int state;
 } Bullet;
 
 
 typedef struct {
     float pos_x;
     float pos_y;
+    int type;
+    int state;
 } Enemy;
 
 
@@ -93,7 +97,7 @@ GameArray temp_arr;
 char *space = (char *)0x100000;
 
 // Capacities
-#define MAX_ENEMIES 10
+#define MAX_ENEMIES 50
 #define MAX_PLAYER_BULLETS 500
 #define MAX_ENEMY_BULLETS 1000
 #define MAX_TEMP 1000
@@ -342,15 +346,15 @@ void update_enemy_bullets() {
 // See the Wikipedia article on
 // linear congruential generators
 unsigned int prev_internal_val;
-unsigned int a = 1664525;
-unsigned int c = 1013904223;
+unsigned int a = 1103515245;
+unsigned int c = 12345;
 unsigned int gen_rand(int range) {
-    prev_internal_val = a * prev_internal_val + c;
+    prev_internal_val = (a * prev_internal_val + c) % 0x80000000;
     return (prev_internal_val % range);
 }
 
 
-#define INVERSE_BULLET_CHANCE 100
+#define INVERSE_BULLET_CHANCE 73
 
 void add_enemy_bullets(){
     int i;
@@ -379,6 +383,21 @@ void add_enemy_bullets(){
 
             GameArrayInsert(&enemy_bullet_arr, gu_cur_bullet);
         }
+    }
+}
+
+void spawn_enemies()
+{
+    unsigned int testval = gen_rand(37);
+    if(!testval)
+    {
+        Enemy test_enemy;
+        test_enemy.pos_x = gen_rand(X_RES);
+        test_enemy.pos_y = 50;
+
+        GameUnion enemy_gu;
+        enemy_gu.enemy = test_enemy;
+        GameArrayInsert(&enemy_arr, enemy_gu);
     }
 }
 
@@ -420,6 +439,8 @@ void c_start(void) {
         int currentTime = ticks;
         
         handle_keyboard();
+        
+        spawn_enemies();
 
         update_player_bullets();
 
@@ -434,7 +455,7 @@ void c_start(void) {
 
         // 2 ticks per game loop
         // so approximately 30fps
-        if(!sleep_until(currentTime + 0))
+        if(!sleep_until(currentTime + 3))
         {
             write_string(3, "you're lagging go faster");
             //this will make you lag even more but whatev
