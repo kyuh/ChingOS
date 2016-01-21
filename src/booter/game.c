@@ -186,11 +186,12 @@ void draw_entities(){
 }
 
 
-#define KEY_UP    (0x11)
-#define KEY_DOWN  (0x1F)
-#define KEY_LEFT  (0x1E)
-#define KEY_RIGHT (0x20)
-#define KEY_SPACE (0x39)
+#define KEY_UP    (0x48)
+#define KEY_DOWN  (0x50)
+#define KEY_LEFT  (0x4B)
+#define KEY_RIGHT (0x4D)
+#define KEY_SPACE (0x2C)
+#define KEY_SHIFT (0x2A)
 
 
 #define BULLET_WAIT 3
@@ -203,7 +204,7 @@ void handle_keyboard(){
         b.pos_x = player.pos_x;
         b.pos_y = player.pos_y - 5;
         b.vel_x = 0;
-        b.vel_y = -6;
+        b.vel_y = -16;
 
         GameUnion b_gu;
         b_gu.bullet = b;
@@ -212,20 +213,26 @@ void handle_keyboard(){
         last_bullet_tick = ticks;
     }
 
+    int increment = PLAYER_MOVE_INCREMENT;
+    if (!keys_pressed[KEY_SHIFT])
+    {
+        increment *= 2;
+    }
+
     if (keys_pressed[KEY_LEFT]){
-        player.pos_x -= PLAYER_MOVE_INCREMENT;
+        player.pos_x -= increment;
     }
 
     if (keys_pressed[KEY_RIGHT]){
-        player.pos_x += PLAYER_MOVE_INCREMENT;
+        player.pos_x += increment;
     }
 
     if (keys_pressed[KEY_DOWN]){
-        player.pos_y += PLAYER_MOVE_INCREMENT;
+        player.pos_y += increment;
     }
 
     if (keys_pressed[KEY_UP]){
-        player.pos_y -= PLAYER_MOVE_INCREMENT;
+        player.pos_y -= increment;
     }
 
 }
