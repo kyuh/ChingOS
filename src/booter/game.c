@@ -259,11 +259,9 @@ float kabs(float x){
 int pb_enemy_intersect(Bullet b, Enemy e){
     //return (kabs(b.pos_y - e.pos_y) < 10);
 
-    int y_in_range = ((e.pos_y - ENEMY_HEIGHT < b.pos_y + BULLET_HEIGHT)
-                   || (e.pos_y + ENEMY_HEIGHT > b.pos_y - BULLET_HEIGHT));
+    int y_in_range = kabs(b.pos_y - e.pos_y) < ENEMY_HEIGHT / 2.0 + BULLET_HEIGHT / 2.0;
 
-    int x_in_range = ((e.pos_x - ENEMY_WIDTH < b.pos_x + BULLET_WIDTH)
-                   || (e.pos_x + ENEMY_WIDTH > b.pos_x - BULLET_WIDTH));
+    int x_in_range = kabs(b.pos_x - e.pos_x) < ENEMY_WIDTH / 2.0 + BULLET_WIDTH / 2.0;
 
     //return x_in_range;
     return (x_in_range && y_in_range);
@@ -272,11 +270,9 @@ int pb_enemy_intersect(Bullet b, Enemy e){
 
 int eb_player_intersect(Bullet b, Player p){
 
-    int y_in_range = ((p.pos_y - PLAYER_HEIGHT < b.pos_y + BULLET_HEIGHT)
-                   || (p.pos_y + PLAYER_HEIGHT > b.pos_y - BULLET_HEIGHT));
+    int y_in_range = kabs(b.pos_y - p.pos_y) < PLAYER_HEIGHT / 2.0 + BULLET_HEIGHT / 2.0;
 
-    int x_in_range = ((p.pos_x - PLAYER_WIDTH < b.pos_x + BULLET_WIDTH)
-                   || (p.pos_x + PLAYER_WIDTH > b.pos_x - BULLET_WIDTH));
+    int x_in_range = kabs(b.pos_x - p.pos_x) < PLAYER_WIDTH / 2.0 + BULLET_WIDTH / 2.0;
 
     return (x_in_range && y_in_range);
 
