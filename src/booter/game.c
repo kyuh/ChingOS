@@ -317,7 +317,7 @@ void update_player_bullets() {
                     enemy_offset++;
                     an_enemy_hit = 1;
                 } else {
-                    GameArraySet(&enemy_arr, i - enemy_offset, e_gu);
+                    GameArraySet(&enemy_arr, j - enemy_offset, e_gu);
                 }
             }
 
