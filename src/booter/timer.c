@@ -76,10 +76,17 @@ void timer_handler()
     ticks++;
 }
 
-void sleep_until(int target)
+//true if any sleeping happened
+char sleep_until(int target)
 {
-    while(target > ticks)
+    if(target <= ticks)
+    {
+        return 0;
+    }
+
+    do
     {
         asm("hlt");
-    }
+    }while(target > ticks);
+    return 1;
 }

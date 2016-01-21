@@ -3,7 +3,7 @@
 
 
 void init_timer(void);
-void sleep_until(int);
+char sleep_until(int);
 
 extern int ticks;
 

@@ -1,6 +1,10 @@
 boot.bin
 program.bin
-floppy.img
+*.img
 prog.lds.s
 *.o
 
+
+temp.img
+datas.bin
+assets.h
