@@ -552,12 +552,12 @@ void update_enemy_positions()
             //now attract it to the ends
             if(enemy.enemy.pos_x > 160)
             {
-                enemy.enemy.state += .1;
+                enemy.enemy.state += .01;
                 enemy.enemy.state = enemy.enemy.state < 1.5 ? enemy.enemy.state : 1.5;
             }
             else
             {
-                enemy.enemy.state -= .1;
+                enemy.enemy.state -= .01;
                 enemy.enemy.state = enemy.enemy.state > -1.5 ? enemy.enemy.state : -1.5;
             }
             enemy.enemy.pos_x += enemy.enemy.state;

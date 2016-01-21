@@ -19,7 +19,7 @@ FLOPPY_IMG = floppy.img
 
 all : $(FLOPPY_IMG)
 
-game.o: $(shell find assets -type f)
+game.o: $(shell find assets -type f) game.c
 	cd assets; bash assemble.sh
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o game.o game.c
 
